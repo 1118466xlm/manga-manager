@@ -166,18 +166,6 @@ body {
   border: 1px solid var(--border);
   overflow: hidden;
 }
-.list-header {
-  display: flex;
-  padding: 10px 12px;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-sub);
-  letter-spacing: 0.05em;
-  background: #faf8f5;
-  border-bottom: 1px solid var(--border);
-}
-.list-header .col { flex-shrink: 0; }
-
 .list-row {
   display: flex;
   align-items: center;
@@ -341,6 +329,27 @@ body {
 @keyframes toastIn { from { opacity: 0; transform: translateX(-50%) translateY(10px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
 @keyframes toastOut { from { opacity: 1; } to { opacity: 0; } }
 
+/* 底部工具栏 */
+.footer-bar {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 24px;
+  padding-bottom: 16px;
+}
+.footer-bar button {
+  padding: 8px 16px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--card-bg);
+  color: var(--text-sub);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+.footer-bar button:hover { border-color: var(--accent); color: var(--accent); }
+
 /* PWA 诊断面板 */
 .pwa-debug {
   background: #fffbf0;
@@ -392,7 +401,6 @@ body {
   .actions-right { justify-content: flex-end; }
   .search-box input { width: 100%; }
 
-  .list-header { display: none; }
   .list-row { flex-wrap: wrap; padding: 12px 14px; gap: 4px 0; }
   .col-name    { flex: 0 0 100%; order: 1; }
   .col-group   { flex: 1 0 auto; order: 2; }
@@ -432,14 +440,12 @@ body {
   </div>
 
   <div class="manga-list" id="mangaList">
-    <div class="list-header">
-      <div class="col col-name">漫画名</div>
-      <div class="col col-group">汉化组</div>
-      <div class="col col-update">更新状态</div>
-      <div class="col col-genre">类型</div>
-      <div class="col col-actions"></div>
-    </div>
     <div id="mangaRows"></div>
+  </div>
+
+  <div class="footer-bar">
+    <button onclick="exportData()">📤 导出数据</button>
+    <button onclick="document.getElementById('importFile').click()">📥 导入数据</button>
   </div>
 
   <!-- PWA 诊断面板 -->
@@ -476,7 +482,7 @@ body {
       <label>漫画类型</label>
       <div class="genre-options">
         <div class="genre-opt" data-genre="BG" onclick="selectGenre('BG', this)">BG</div>
-        <div class="genre-opt" data-genre="BL" onclick="selectGenre('BL', this)">BL</div>
+        <div class="genre-opt selected" data-genre="BL" onclick="selectGenre('BL', this)">BL</div>
         <div class="genre-opt" data-genre="__other__" onclick="selectGenre('__other__', this)">其他</div>
       </div>
       <input type="text" id="customGenreInput" placeholder="输入自定义类型">
@@ -494,7 +500,7 @@ const CACHE_NAME = 'manga-manager-v2';
 
 let currentTab = 'ongoing';
 let editingId = null;
-let selectedGenre = 'BG';
+let selectedGenre = 'BL';
 let mangaData = [];
 
 // === 数据 ===
@@ -601,10 +607,7 @@ function openModal(id) {
     document.getElementById('inputName').value = '';
     document.getElementById('inputGroup').value = '';
     document.getElementById('inputUpdate').value = '';
-    document.querySelectorAll('.genre-opt').forEach(o => o.classList.remove('selected'));
-    selectedGenre = null;
-    document.getElementById('customGenreInput').style.display = 'none';
-    document.getElementById('customGenreInput').value = '';
+    selectGenre('BL', document.querySelector('.genre-opt[data-genre="BL"]'));
   }
   document.getElementById('modalOverlay').style.display = 'flex';
 }
@@ -690,7 +693,6 @@ function renderManga() {
     `共 ${total} 部漫画 · 连载 ${ongoingCount} · 完结 ${completedCount}`;
 
   if (list.length === 0) {
-    document.querySelector('.list-header').style.display = 'none';
     rowsEl.innerHTML = `<div class="empty-state">
       <div class="empty-icon">📚</div>
       <p>${search ? '没有找到匹配的漫画' : (currentTab === 'ongoing' ? '还没有连载中的漫画' : '还没有完结的漫画')}</p>
@@ -698,7 +700,6 @@ function renderManga() {
     return;
   }
 
-  document.querySelector('.list-header').style.display = 'flex';
   rowsEl.innerHTML = list.map(m => {
     const genreClass = m.genre === 'BG' ? 'genre-bg' : m.genre === 'BL' ? 'genre-bl' : 'genre-other';
     return `
