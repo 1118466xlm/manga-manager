@@ -38,9 +38,9 @@ body {
 }
 
 .container {
-  max-width: 860px;
+  max-width: 640px;
   margin: 0 auto;
-  padding: 32px 20px 80px;
+  padding: 24px 16px 80px;
 }
 
 /* 头部 */
@@ -168,7 +168,7 @@ body {
 }
 .list-header {
   display: flex;
-  padding: 12px 16px;
+  padding: 10px 12px;
   font-size: 12px;
   font-weight: 600;
   color: var(--text-sub);
@@ -181,7 +181,7 @@ body {
 .list-row {
   display: flex;
   align-items: center;
-  padding: 14px 16px;
+  padding: 10px 12px;
   border-bottom: 1px solid var(--border);
   transition: background 0.2s;
 }
@@ -191,11 +191,11 @@ body {
 .col-name    { flex: 2; min-width: 0; }
 .col-group   { flex: 1.5; min-width: 0; }
 .col-update  { flex: 1.5; min-width: 0; }
-.col-genre   { flex: 0 0 70px; }
-.col-actions { flex: 0 0 88px; }
+.col-genre   { flex: 0 0 56px; }
+.col-actions { flex: 0 0 64px; }
 
 .col-name .manga-title {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--text);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
@@ -212,12 +212,12 @@ body {
 .dot-completed { background: var(--accent); }
 
 .col-group .group-text {
-  font-size: 13px;
+  font-size: 12px;
   color: var(--text);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .col-update .update-text {
-  font-size: 13px;
+  font-size: 12px;
   color: var(--text-sub);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
@@ -239,7 +239,7 @@ body {
   justify-content: flex-end;
 }
 .row-actions button {
-  width: 28px; height: 28px;
+  width: 24px; height: 24px;
   border: none;
   background: transparent;
   border-radius: 6px;
@@ -341,27 +341,6 @@ body {
 @keyframes toastIn { from { opacity: 0; transform: translateX(-50%) translateY(10px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
 @keyframes toastOut { from { opacity: 1; } to { opacity: 0; } }
 
-/* 底部工具栏 */
-.footer-bar {
-  display: flex;
-  justify-content: center;
-  gap: 16px;
-  margin-top: 24px;
-  padding-bottom: 16px;
-}
-.footer-bar button {
-  padding: 8px 16px;
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  background: var(--card-bg);
-  color: var(--text-sub);
-  font-size: 12px;
-  cursor: pointer;
-  transition: all 0.2s;
-  font-family: inherit;
-}
-.footer-bar button:hover { border-color: var(--accent); color: var(--accent); }
-
 /* PWA 诊断面板 */
 .pwa-debug {
   background: #fffbf0;
@@ -447,8 +426,6 @@ body {
       </div>
     </div>
     <div class="actions-right">
-      <button class="btn-sm" onclick="exportData()" title="导出数据">📤 导出</button>
-      <button class="btn-sm" onclick="document.getElementById('importFile').click()" title="导入数据">📥 导入</button>
       <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
       <button class="btn btn-add ongoing-btn" id="addBtn" onclick="openModal()">+ 添加漫画</button>
     </div>
@@ -463,11 +440,6 @@ body {
       <div class="col col-actions"></div>
     </div>
     <div id="mangaRows"></div>
-  </div>
-
-  <div class="footer-bar">
-    <button onclick="exportData()">📤 导出数据</button>
-    <button onclick="document.getElementById('importFile').click()">📥 导入数据</button>
   </div>
 
   <!-- PWA 诊断面板 -->
@@ -503,7 +475,7 @@ body {
     <div class="form-group">
       <label>漫画类型</label>
       <div class="genre-options">
-        <div class="genre-opt selected" data-genre="BG" onclick="selectGenre('BG', this)">BG</div>
+        <div class="genre-opt" data-genre="BG" onclick="selectGenre('BG', this)">BG</div>
         <div class="genre-opt" data-genre="BL" onclick="selectGenre('BL', this)">BL</div>
         <div class="genre-opt" data-genre="__other__" onclick="selectGenre('__other__', this)">其他</div>
       </div>
@@ -602,7 +574,7 @@ function getGenreValue() {
   if (selectedGenre === '__other__') {
     return document.getElementById('customGenreInput').value.trim() || '其他';
   }
-  return selectedGenre;
+  return selectedGenre || 'BG';
 }
 
 // === 弹窗 ===
@@ -629,7 +601,10 @@ function openModal(id) {
     document.getElementById('inputName').value = '';
     document.getElementById('inputGroup').value = '';
     document.getElementById('inputUpdate').value = '';
-    selectGenre('BG', document.querySelector('.genre-opt[data-genre="BG"]'));
+    document.querySelectorAll('.genre-opt').forEach(o => o.classList.remove('selected'));
+    selectedGenre = null;
+    document.getElementById('customGenreInput').style.display = 'none';
+    document.getElementById('customGenreInput').value = '';
   }
   document.getElementById('modalOverlay').style.display = 'flex';
 }
