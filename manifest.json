@@ -1,0 +1,22 @@
+{
+  "name": "漫画整理",
+  "short_name": "漫画整理",
+  "description": "个人漫画收藏管理工具",
+  "start_url": "/manga-manager/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f6f4f1",
+  "theme_color": "#f6f4f1",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='36' fill='%23f6f4f1'/%3E%3Ctext x='96' y='0.75em' text-anchor='middle' font-size='120'%3E📚%3C/text%3E%3C/svg%3E",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='96' fill='%23f6f4f1'/%3E%3Ctext x='256' y='0.75em' text-anchor='middle' font-size='320'%3E📚%3C/text%3E%3C/svg%3E",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}
