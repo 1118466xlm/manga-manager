@@ -778,6 +778,38 @@ if ('serviceWorker' in navigator) {
     .catch(() => {});
 }
 
+// === 参与度追踪（Chrome 要求 30s + 两次访问间隔≥5分钟） ===
+const ENGAGE_KEY = 'manga_engage';
+const sessionStart = Date.now();
+let engageData = { totalTime: 0, visitCount: 0, firstVisit: null, lastVisit: null };
+
+try {
+  const raw = localStorage.getItem(ENGAGE_KEY);
+  if (raw) engageData = JSON.parse(raw);
+} catch(e) {}
+
+engageData.visitCount++;
+if (!engageData.firstVisit) engageData.firstVisit = sessionStart;
+engageData.lastVisit = sessionStart;
+localStorage.setItem(ENGAGE_KEY, JSON.stringify(engageData));
+
+// 每15秒更新累计时间
+setInterval(() => {
+  engageData.totalTime += 15;
+  localStorage.setItem(ENGAGE_KEY, JSON.stringify(engageData));
+}, 15000);
+
+function getEngageStatus() {
+  const now = Date.now();
+  const sessionElapsed = Math.floor((now - sessionStart) / 1000);
+  const totalTime = engageData.totalTime + sessionElapsed;
+  const timeOk = totalTime >= 30;
+  const visitsOk = engageData.visitCount >= 2;
+  const intervalOk = engageData.lastVisit && engageData.firstVisit &&
+    (engageData.lastVisit - engageData.firstVisit) >= 5 * 60 * 1000;
+  return { sessionElapsed, totalTime, visits: engageData.visitCount, timeOk, visitsOk, intervalOk };
+}
+
 // === PWA 安装 ===
 const installHeader = document.getElementById('btnInstallHeader');
 let deferredPrompt = null;
@@ -853,10 +885,16 @@ function showDiagnostics() {
     html += '<div class="check-item">' + pass(r.bipFired) + ' Chrome 安装就绪</div>';
 
     if (allPass && !r.bipFired && r.swControlling) {
+      const eg = getEngageStatus();
+      const passE = (v) => v ? '<span class="check-pass">✓</span>' : '<span class="check-fail">✗</span>';
+
       html += '<div style="margin-top:12px;padding:10px;background:#fff;border-radius:8px;border:1px solid #e0d8c0;font-size:13px;color:#7b6e50;">';
       html += '<strong>技术检查全部通过 ✓</strong><br><br>';
-      html += 'Chrome 需要一定时间的页面交互才会触发安装（通常30秒~2分钟）。<br><br>';
-      html += '<strong>请继续浏览：</strong>添加漫画、切换标签、搜索，安装提示会在底部自动出现。';
+      html += '<div style="font-size:12px;margin-bottom:8px;">Chrome 参与度要求：</div>';
+      html += '<div class="check-item">' + passE(eg.timeOk) + ' 浏览时间 ≥ 30秒 (已浏览 ' + eg.sessionElapsed + '秒)</div>';
+      html += '<div class="check-item">' + passE(eg.visitsOk) + ' 访问次数 ≥ 2次 (已访问 ' + eg.visits + '次)</div>';
+      html += '<div class="check-item">' + passE(eg.intervalOk) + ' 首次/末次间隔 ≥ 5分钟</div>';
+      html += '<br><div style="font-size:12px;">满足全部条件后，安装提示会自动出现。</div>';
       html += '</div>';
 
       if (!retryTimer) {
