@@ -38,9 +38,9 @@ body {
 }
 
 .container {
-  max-width: 640px;
+  max-width: 520px;
   margin: 0 auto;
-  padding: 24px 16px 80px;
+  padding: 20px 12px 80px;
 }
 
 /* 头部 */
@@ -170,25 +170,27 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 9px 12px;
+  padding: 8px 10px;
   background: #faf8f5;
   border-bottom: 1px solid var(--border);
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-sub);
+  border-left: 3px solid var(--accent);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
   letter-spacing: 0.04em;
 }
 .group-header .group-count {
   font-size: 11px;
   font-weight: 400;
   color: var(--text-sub);
-  opacity: 0.7;
+  opacity: 0.8;
+  margin-left: auto;
 }
 
 .list-row {
   display: flex;
   align-items: center;
-  padding: 10px 12px;
+  padding: 7px 10px;
   border-bottom: 1px solid var(--border);
   transition: background 0.2s;
 }
@@ -204,14 +206,14 @@ body {
   font-weight: 700;
 }
 
-.col-name    { flex: 2; min-width: 0; }
-.col-group   { flex: 1.5; min-width: 0; }
-.col-update  { flex: 1.5; min-width: 0; }
-.col-genre   { flex: 0 0 56px; }
-.col-actions { flex: 0 0 64px; }
+.col-name    { flex: 2.2; min-width: 0; }
+.col-group   { flex: 1; min-width: 0; }
+.col-update  { flex: 1.2; min-width: 0; }
+.col-genre   { flex: 0 0 48px; }
+.col-actions { flex: 0 0 56px; }
 
 .col-name .manga-title {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--text);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
@@ -228,12 +230,12 @@ body {
 .dot-completed { background: var(--accent); }
 
 .col-group .group-text {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--text);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .col-update .update-text {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--text-sub);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
@@ -255,13 +257,13 @@ body {
   justify-content: flex-end;
 }
 .row-actions button {
-  width: 24px; height: 24px;
+  width: 22px; height: 22px;
   border: none;
   background: transparent;
-  border-radius: 6px;
+  border-radius: 4px;
   cursor: pointer;
   color: #c5bdb5;
-  font-size: 14px;
+  font-size: 13px;
   transition: all 0.2s;
   display: flex; align-items: center; justify-content: center;
 }
@@ -432,15 +434,15 @@ body {
   .actions-right { justify-content: flex-end; }
   .search-box input { width: 100%; }
 
-  .list-row { flex-wrap: wrap; padding: 12px 14px; gap: 4px 0; }
+  .list-row { flex-wrap: wrap; padding: 8px 10px; gap: 2px 0; }
   .col-name    { flex: 0 0 100%; order: 1; }
   .col-group   { flex: 1 0 auto; order: 2; }
   .col-update  { flex: 1 0 auto; order: 3; }
   .col-genre   { flex: 0 0 auto; order: 4; }
   .col-actions { flex: 0 0 100%; order: 5; display: flex; justify-content: flex-end; }
   .col-group .group-text,
-  .col-update .update-text { font-size: 12px; }
-  .col-name .manga-title { font-size: 14px; }
+  .col-update .update-text { font-size: 11px; }
+  .col-name .manga-title { font-size: 13px; }
 }
 </style>
 </head>
