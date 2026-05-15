@@ -1,0 +1,482 @@
+[
+  {
+    "id": 1715800000000,
+    "name": "初次的夏天",
+    "group": "Mint",
+    "update": "更至60→（S1完结）S2连载ing（1已传）",
+    "genre": "BL",
+    "status": "ongoing"
+  },
+  {
+    "id": 1715800000001,
+    "name": "F级恋爱史",
+    "group": "Mint",
+    "update": "更至27→连载ing",
+    "genre": "BL",
+    "status": "ongoing"
+  },
+  {
+    "id": 1715800000002,
+    "name": "Dream or trick",
+    "group": "Mint",
+    "update": "更至10",
+    "genre": "BL",
+    "status": "ongoing"
+  },
+  {
+    "id": 1715800000003,
+    "name": "Alpha创伤",
+    "group": "美男子",
+    "update": "更至38→S2连载ing（S1已传）",
+    "genre": "BL",
+    "status": "ongoing"
+  },
+  {
+    "id": 1715800000004,
+    "name": "周一的救星",
+    "group": "美男子",
+    "update": "更至84→（S1-3已传）蹲S4",
+    "genre": "BL",
+    "status": "ongoing"
+  },
+  {
+    "id": 1715800000005,
+    "name": "悠元不变",
+    "group": "美男子",
+    "update": "更至73→S3连载ing（S1+2已传）",
+    "genre": "BL",
+    "status": "ongoing"
+  },
+  {
+    "id": 1715800000006,
+    "name": "Hit me hard",
+    "group": "美男子",
+    "update": "更至24→后记（S1已传）蹲S2",
+    "genre": "BL",
+    "status": "ongoing"
+  },
+  {
+    "id": 1715800000007,
+    "name": "杨一宇和我",
+    "group": "书中有（无）📖",
+    "update": "（看至26）更至29→S2连载ing（S1已传）",
+    "genre": "BL",
+    "status": "ongoing"
+  },
+  {
+    "id": 1715800000008,
+    "name": "unsleep",
+    "group": "书中有（无）📖",
+    "update": "更至72→S2连载ing（S1已传）",
+    "genre": "BL",
+    "status": "ongoing"
+  },
+  {
+    "id": 1715800000009,
+    "name": "rockstar never die",
+    "group": "书中有（无）📖",
+    "update": "更至50完→（S1+2已传）",
+    "genre": "BL",
+    "status": "completed"
+  },
+  {
+    "id": 1715800000010,
+    "name": "日常兼职",
+    "group": "小袁酪拾",
+    "update": "更至47→（连载ing）缺43",
+    "genre": "BL",
+    "status": "ongoing"
+  },
+  {
+    "id": 1715800000011,
+    "name": "Kiss me if you can",
+    "group": "小袁酪拾",
+    "update": "更至42→S2连载ing（S1已传）",
+    "genre": "BL",
+    "status": "ongoing"
+  },
+  {
+    "id": 1715800000012,
+    "name": "红线挑战",
+    "group": "小袁酪拾",
+    "update": "更至54→（S1+2已传）蹲S3",
+    "genre": "BL",
+    "status": "ongoing"
+  },
+  {
+    "id": 1715800000013,
+    "name": "融冰曲线",
+    "group": "小袁酪拾",
+    "update": "更至26→（S1已传）蹲S2",
+    "genre": "BL",
+    "status": "ongoing"
+  },
+  {
+    "id": 1715800000014,
+    "name": "单恋必胜法",
+    "group": "小袁酪拾",
+    "update": "更至29→S2连载ing（S1已传）",
+    "genre": "BL",
+    "status": "ongoing"
+  },
+  {
+    "id": 1715800000015,
+    "name": "爱情是幻想（巨星篇）",
+    "group": "小袁酪拾",
+    "update": "更至外传05（S1-3已传）",
+    "genre": "BL",
+    "status": "ongoing"
+  },
+  {
+    "id": 1715800000016,
+    "name": "气味的边界",
+    "group": "小袁酪拾",
+    "update": "更至80→S3连载ing（S1+2完结已传）",
+    "genre": "BL",
+    "status": "ongoing"
+  },
+  {
+    "id": 1715800000017,
+    "name": "单相思约会",
+    "group": "花花（养花人）🌸",
+    "update": "（看52）更至57→连载ing",
+    "genre": "BL",
+    "status": "ongoing"
+  },
+  {
+    "id": 1715800000018,
+    "name": "花是诱饵",
+    "group": "花花（养花人）🌸",
+    "update": "（看35or36）更至47→S2连载ing（S1已传）",
+    "genre": "BL",
+    "status": "ongoing"
+  },
+  {
+    "id": 1715800000019,
+    "name": "结婚死守绯闻",
+    "group": "花花（养花人）🌸",
+    "update": "更至11→连载ing",
+    "genre": "BL",
+    "status": "ongoing"
+  },
+  {
+    "id": 1715800000020,
+    "name": "恶友",
+    "group": "殷郁郁",
+    "update": "（看至29）更至37→S2连载ing（S1已传）",
+    "genre": "BL",
+    "status": "ongoing"
+  },
+  {
+    "id": 1715800000021,
+    "name": "猫咪疗法",
+    "group": "殷郁郁",
+    "update": "更至28→连载ing",
+    "genre": "BL",
+    "status": "ongoing"
+  },
+  {
+    "id": 1715800000022,
+    "name": "薄荷糖",
+    "group": "殷郁郁",
+    "update": "更至34→（S1已传）蹲S2",
+    "genre": "BL",
+    "status": "ongoing"
+  },
+  {
+    "id": 1715800000023,
+    "name": "The taming驯服",
+    "group": "殷郁郁",
+    "update": "更至30→（S1已传）蹲S2",
+    "genre": "BL",
+    "status": "ongoing"
+  },
+  {
+    "id": 1715800000024,
+    "name": "请不要按压李子",
+    "group": "殷郁郁",
+    "update": "更至05→连载ing",
+    "genre": "BL",
+    "status": "ongoing"
+  },
+  {
+    "id": 1715800000025,
+    "name": "passion受难曲",
+    "group": "悲伤毛豆腐😞",
+    "update": "更至133→S6连载ing（S1-5已传）",
+    "genre": "BL",
+    "status": "ongoing"
+  },
+  {
+    "id": 1715800000026,
+    "name": "代号anstasia",
+    "group": "悲伤毛豆腐😞",
+    "update": "更至70→S2连载ing（S1已传）",
+    "genre": "BL",
+    "status": "ongoing"
+  },
+  {
+    "id": 1715800000027,
+    "name": "Dash",
+    "group": "月圆花开🌙",
+    "update": "更至44→S2连载ing（S1已传）",
+    "genre": "BL",
+    "status": "ongoing"
+  },
+  {
+    "id": 1715800000028,
+    "name": "公私分明",
+    "group": "月圆花开🌙",
+    "update": "更至87→S3更新ing（S1+2已传）",
+    "genre": "BL",
+    "status": "ongoing"
+  },
+  {
+    "id": 1715800000029,
+    "name": "负面恋情",
+    "group": "王室继承人👑",
+    "update": "更至57→连载ing",
+    "genre": "BL",
+    "status": "ongoing"
+  },
+  {
+    "id": 1715800000030,
+    "name": "亡种",
+    "group": "王室继承人👑",
+    "update": "更至41→（S1已传）蹲S2",
+    "genre": "BL",
+    "status": "ongoing"
+  },
+  {
+    "id": 1715800000031,
+    "name": "Love order",
+    "group": "王室继承人👑",
+    "update": "更至19→连载ing",
+    "genre": "BL",
+    "status": "ongoing"
+  },
+  {
+    "id": 1715800000032,
+    "name": "Rack",
+    "group": "王室继承人👑",
+    "update": "更至06→连载ing",
+    "genre": "BL",
+    "status": "ongoing"
+  },
+  {
+    "id": 1715800000033,
+    "name": "青梅竹马是市价",
+    "group": "烤面筋🍜",
+    "update": "更至11→连载ing",
+    "genre": "BL",
+    "status": "ongoing"
+  },
+  {
+    "id": 1715800000034,
+    "name": "天鹅之墓",
+    "group": "烤面筋🍜",
+    "update": "更至43→连载ing",
+    "genre": "BL",
+    "status": "ongoing"
+  },
+  {
+    "id": 1715800000035,
+    "name": "福利上司 外传",
+    "group": "烤面筋🍜",
+    "update": "更至02→（正片已传）",
+    "genre": "BL",
+    "status": "ongoing"
+  },
+  {
+    "id": 1715800000036,
+    "name": "Full book",
+    "group": "烤面筋🍜",
+    "update": "（S1已传）蹲S2",
+    "genre": "BL",
+    "status": "ongoing"
+  },
+  {
+    "id": 1715800000037,
+    "name": "代替丈夫喝下它",
+    "group": "烤面筋🍜",
+    "update": "更至13→连载ing",
+    "genre": "BL",
+    "status": "ongoing"
+  },
+  {
+    "id": 1715800000038,
+    "name": "Something about you",
+    "group": "短裤blue👖",
+    "update": "更至19",
+    "genre": "BL",
+    "status": "ongoing"
+  },
+  {
+    "id": 1715800000039,
+    "name": "致毁灭我的你",
+    "group": "短裤blue👖",
+    "update": "更至29→连载ing",
+    "genre": "BL",
+    "status": "ongoing"
+  },
+  {
+    "id": 1715800000040,
+    "name": "Touch your body",
+    "group": "短裤blue👖",
+    "update": "更至18→连载ing",
+    "genre": "BL",
+    "status": "ongoing"
+  },
+  {
+    "id": 1715800000041,
+    "name": "我的S主",
+    "group": "摸鱼狂魔🐟",
+    "update": "更至44→S2连载ing（S1已传）",
+    "genre": "BL",
+    "status": "ongoing"
+  },
+  {
+    "id": 1715800000042,
+    "name": "Stage behind海王",
+    "group": "摸鱼狂魔🐟",
+    "update": "更至33",
+    "genre": "BL",
+    "status": "ongoing"
+  },
+  {
+    "id": 1715800000043,
+    "name": "A先生的农场",
+    "group": "摸鱼狂魔🐟",
+    "update": "蹲S2→（S1已传）",
+    "genre": "BL",
+    "status": "ongoing"
+  },
+  {
+    "id": 1715800000044,
+    "name": "可以借个火吗 外传",
+    "group": "桃子🍑",
+    "update": "更至02",
+    "genre": "BL",
+    "status": "ongoing"
+  },
+  {
+    "id": 1715800000045,
+    "name": "完美前辈的秘密",
+    "group": "桃子🍑",
+    "update": "更至05",
+    "genre": "BL",
+    "status": "ongoing"
+  },
+  {
+    "id": 1715800000046,
+    "name": "禁止为前男友们驱魔",
+    "group": "你在说什么❓",
+    "update": "更至22（S1完结已传）",
+    "genre": "BL",
+    "status": "completed"
+  },
+  {
+    "id": 1715800000047,
+    "name": "House call",
+    "group": "你在说什么❓",
+    "update": "",
+    "genre": "BL",
+    "status": "ongoing"
+  },
+  {
+    "id": 1715800000048,
+    "name": "圣母怜子图",
+    "group": "你在说什么❓",
+    "update": "更至27→S1完结（已传）（蹲S2）",
+    "genre": "BL",
+    "status": "ongoing"
+  },
+  {
+    "id": 1715800000049,
+    "name": "Fever",
+    "group": "奶丸公主🥛",
+    "update": "更至10",
+    "genre": "BL",
+    "status": "ongoing"
+  },
+  {
+    "id": 1715800000050,
+    "name": "可爱的狮子头金鱼🐟",
+    "group": "奶丸公主🥛",
+    "update": "更至10",
+    "genre": "BL",
+    "status": "ongoing"
+  },
+  {
+    "id": 1715800000051,
+    "name": "Toy daddy",
+    "group": "多喝热水少生气💢",
+    "update": "更至36",
+    "genre": "BL",
+    "status": "ongoing"
+  },
+  {
+    "id": 1715800000052,
+    "name": "不是你而且你的室友",
+    "group": "树莓蛋卷",
+    "update": "更至08",
+    "genre": "BL",
+    "status": "ongoing"
+  },
+  {
+    "id": 1715800000053,
+    "name": "Body position",
+    "group": "树莓蛋卷",
+    "update": "更至33→S2连载ing（S1已传）",
+    "genre": "BL",
+    "status": "ongoing"
+  },
+  {
+    "id": 1715800000054,
+    "name": "陛下的夜晚",
+    "group": "狗味儿（BG）🐶",
+    "update": "更至48→S2连载ing（S1已传）",
+    "genre": "BG",
+    "status": "ongoing"
+  },
+  {
+    "id": 1715800000055,
+    "name": "守贞罗曼史",
+    "group": "狗味儿（BG）🐶",
+    "update": "更至04（缺02）",
+    "genre": "BG",
+    "status": "ongoing"
+  },
+  {
+    "id": 1715800000056,
+    "name": "拥神之法",
+    "group": "绾绾",
+    "update": "外传09→（正片已传）",
+    "genre": "BL",
+    "status": "ongoing"
+  },
+  {
+    "id": 1715800000057,
+    "name": "越线关系",
+    "group": "绾绾",
+    "update": "更至100（s1-3已传）",
+    "genre": "BL",
+    "status": "ongoing"
+  },
+  {
+    "id": 1715800000058,
+    "name": "越线关系",
+    "group": "绳东击西🧭",
+    "update": "更至119→S4连载ing",
+    "genre": "BL",
+    "status": "ongoing"
+  },
+  {
+    "id": 1715800000059,
+    "name": "我喜欢的书呆子，对吧",
+    "group": "酷酷吖🕶️",
+    "update": "更至22→S2连载ing（S1已传）",
+    "genre": "BL",
+    "status": "ongoing"
+  }
+]
