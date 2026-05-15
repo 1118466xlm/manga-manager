@@ -858,6 +858,7 @@ async function runDiagnostics() {
   // 4. beforeinstallprompt
   results.bipFired = !!deferredPrompt;
   results.bipPlatforms = deferredPrompt ? (deferredPrompt.platforms || []) : [];
+  results.bipSupported = typeof BeforeInstallPromptEvent !== 'undefined';
 
   checkResults = results;
   return results;
@@ -884,20 +885,28 @@ function showDiagnostics() {
     }
     html += '<div class="check-item">' + pass(r.bipFired) + ' Chrome 安装就绪</div>';
 
-    if (allPass && !r.bipFired && r.swControlling) {
-      const eg = getEngageStatus();
-      const passE = (v) => v ? '<span class="check-pass">✓</span>' : '<span class="check-fail">✗</span>';
-
+    if (allPass && !r.bipFired) {
       html += '<div style="margin-top:12px;padding:10px;background:#fff;border-radius:8px;border:1px solid #e0d8c0;font-size:13px;color:#7b6e50;">';
-      html += '<strong>技术检查全部通过 ✓</strong><br><br>';
-      html += '<div style="font-size:12px;margin-bottom:8px;">Chrome 参与度要求：</div>';
-      html += '<div class="check-item">' + passE(eg.timeOk) + ' 浏览时间 ≥ 30秒 (已浏览 ' + eg.sessionElapsed + '秒)</div>';
-      html += '<div class="check-item">' + passE(eg.visitsOk) + ' 访问次数 ≥ 2次 (已访问 ' + eg.visits + '次)</div>';
-      html += '<div class="check-item">' + passE(eg.intervalOk) + ' 首次/末次间隔 ≥ 5分钟</div>';
-      html += '<br><div style="font-size:12px;">满足全部条件后，安装提示会自动出现。</div>';
+      html += '<strong>技术检查全部通过 ✓</strong><br>';
+
+      if (!r.bipSupported) {
+        html += '<br><div style="font-size:12px;color:#c04040;line-height:1.6;">';
+        html += '⚠ <b>手机缺少 Google Play 服务</b>，Chrome 无法触发安装。<br><br>';
+        html += '<b>解决方案：</b>安装 <b>Microsoft Edge</b> 浏览器<br>';
+        html += '（Edge 不依赖 Play 服务，支持完整 PWA 安装）';
+        html += '</div>';
+      } else {
+        const eg = getEngageStatus();
+        const passE = (v) => v ? '<span class="check-pass">✓</span>' : '<span class="check-fail">✗</span>';
+        html += '<br><div style="font-size:12px;margin-bottom:8px;">Chrome 参与度要求：</div>';
+        html += '<div class="check-item">' + passE(eg.timeOk) + ' 浏览时间 ≥ 30秒 (已浏览 ' + eg.sessionElapsed + '秒)</div>';
+        html += '<div class="check-item">' + passE(eg.visitsOk) + ' 访问次数 ≥ 2次 (已访问 ' + eg.visits + '次)</div>';
+        html += '<div class="check-item">' + passE(eg.intervalOk) + ' 首次/末次间隔 ≥ 5分钟</div>';
+        html += '<br><div style="font-size:12px;">满足全部条件后，安装提示会自动出现。</div>';
+      }
       html += '</div>';
 
-      if (!retryTimer) {
+      if (!retryTimer && r.bipSupported) {
         retryTimer = setInterval(() => {
           if (deferredPrompt) {
             clearInterval(retryTimer);
@@ -908,7 +917,6 @@ function showDiagnostics() {
         }, 3000);
       }
     }
-
     if (allPass && !r.swControlling) {
       html += '<div style="margin-top:12px;padding:10px;background:#ffe;border-radius:8px;border:1px solid #e0c0c0;font-size:13px;color:#a04040;">';
       html += '<strong>SW 未控制页面 ⚠</strong><br><br>';
