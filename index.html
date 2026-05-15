@@ -362,6 +362,21 @@ body {
 }
 .footer-bar button:hover { border-color: var(--accent); color: var(--accent); }
 
+/* PWA 诊断面板 */
+.pwa-debug {
+  background: #fffbf0;
+  border: 1px solid #e8d896;
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 16px;
+  font-size: 12px;
+  color: var(--text);
+}
+.pwa-debug .debug-title { font-weight: 600; margin-bottom: 8px; }
+.pwa-debug .check-item { padding: 3px 0; }
+.pwa-debug .check-pass { color: #4a9; }
+.pwa-debug .check-fail { color: #d47b7b; }
+
 /* 安装提示条 */
 .install-banner {
   display: none;
@@ -454,6 +469,13 @@ body {
     <button onclick="exportData()">📤 导出数据</button>
     <button onclick="document.getElementById('importFile').click()">📥 导入数据</button>
   </div>
+
+  <!-- PWA 诊断面板 -->
+  <div class="pwa-debug" id="pwaDebug" style="display:none">
+    <div class="debug-title">PWA 状态检测</div>
+    <div id="debugContent"></div>
+    <button class="btn-sm" onclick="document.getElementById('pwaDebug').style.display='none'" style="margin-top:8px">关闭</button>
+  </div>
 </div>
 
 <!-- 安装提示条 -->
@@ -502,7 +524,6 @@ let currentTab = 'ongoing';
 let editingId = null;
 let selectedGenre = 'BG';
 let mangaData = [];
-let deferredPrompt = null;
 
 // === 数据 ===
 function loadData() {
@@ -744,11 +765,95 @@ document.addEventListener('keydown', e => {
 });
 
 // === PWA 安装 ===
-const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
 const installHeader = document.getElementById('btnInstallHeader');
+let deferredPrompt = null;
+let checkResults = {};
+
+// 诊断检测
+async function runDiagnostics() {
+  const results = {};
+
+  // 1. HTTPS
+  results.https = location.protocol === 'https:';
+
+  // 2. Manifest
+  try {
+    const manifestLink = document.querySelector('link[rel="manifest"]');
+    results.manifestLink = !!manifestLink;
+    if (manifestLink) {
+      const resp = await fetch(manifestLink.href);
+      const json = await resp.json();
+      results.manifestName = !!json.name;
+      results.manifestStartUrl = !!json.start_url;
+      results.manifestDisplay = json.display === 'standalone' || json.display === 'fullscreen';
+      results.manifestIcons = !!(json.icons && json.icons.length >= 2);
+    }
+  } catch(e) {
+    results.manifestError = e.message;
+  }
+
+  // 3. Service Worker
+  results.serviceWorkerSupported = 'serviceWorker' in navigator;
+  if (results.serviceWorkerSupported) {
+    try {
+      const regs = await navigator.serviceWorker.getRegistrations();
+      results.swRegistered = regs.length > 0;
+      if (regs.length > 0) {
+        results.swScope = regs[0].scope;
+        results.swActive = !!regs[0].active;
+      }
+    } catch(e) {
+      results.swError = e.message;
+    }
+  }
+
+  // 4. Standalone check
+  results.isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+
+  // 5. beforeinstallprompt
+  results.bipFired = !!deferredPrompt;
+
+  checkResults = results;
+  return results;
+}
+
+// 显示诊断
+function showDiagnostics() {
+  const panel = document.getElementById('pwaDebug');
+  const content = document.getElementById('debugContent');
+
+  runDiagnostics().then(r => {
+    const pass = (v) => v ? '<span class="check-pass">✓</span>' : '<span class="check-fail">✗</span>';
+    content.innerHTML =
+      '<div class="check-item">' + pass(r.https) + ' HTTPS: ' + (r.https ? '是' : '否') + '</div>' +
+      '<div class="check-item">' + pass(r.manifestLink) + ' Manifest 链接: ' + (r.manifestLink ? '存在' : '缺失') + '</div>' +
+      '<div class="check-item">' + pass(r.manifestName) + ' Manifest name: ' + (r.manifestName ? '有' : '无') + '</div>' +
+      '<div class="check-item">' + pass(r.manifestDisplay) + ' Manifest display: ' + (r.manifestDisplay ? '正确' : '错误') + '</div>' +
+      '<div class="check-item">' + pass(r.manifestIcons) + ' Manifest 图标(≥2): ' + (r.manifestIcons ? '有' : '不足') + '</div>' +
+      '<div class="check-item">' + pass(r.swRegistered) + ' SW 注册: ' + (r.swRegistered ? '已注册 (' + (r.swScope||'') + ')' : '未注册') + '</div>' +
+      '<div class="check-item">' + pass(r.swActive) + ' SW 激活: ' + (r.swActive ? '是' : '否') + '</div>' +
+      '<div class="check-item">' + pass(r.bipFired) + ' beforeinstallprompt: ' + (r.bipFired ? '已触发' : '未触发') + '</div>' +
+      '<div class="check-item">' + pass(!r.isStandalone) + ' 非独立窗口: ' + (!r.isStandalone ? '是' : '已安装') + '</div>';
+
+    if (r.manifestError) {
+      content.innerHTML += '<div class="check-item"><span class="check-fail">✗</span> Manifest 错误: ' + r.manifestError + '</div>';
+    }
+    if (r.swError) {
+      content.innerHTML += '<div class="check-item"><span class="check-fail">✗</span> SW 错误: ' + r.swError + '</div>';
+    }
+
+    panel.style.display = 'block';
+  }).catch(e => {
+    content.innerHTML = '<div class="check-item"><span class="check-fail">✗</span> 诊断异常: ' + e.message + '</div>';
+    panel.style.display = 'block';
+  });
+}
+
+// 初始检测
+runDiagnostics();
 
 // 如果不是独立窗口模式，显示安装按钮
-if (!isStandalone) {
+if (!window.matchMedia('(display-mode: standalone)').matches) {
   installHeader.style.display = 'inline-block';
 }
 
@@ -756,6 +861,7 @@ window.addEventListener('beforeinstallprompt', e => {
   e.preventDefault();
   deferredPrompt = e;
   document.getElementById('installBanner').style.display = 'block';
+  checkResults.bipFired = true;
 });
 
 window.addEventListener('appinstalled', () => {
@@ -776,8 +882,9 @@ function installPWA() {
       }
     });
   } else {
-    // 兜底：提示用户通过浏览器菜单安装
-    showToast('请通过浏览器菜单选择"安装应用"或"添加到主屏幕"');
+    // 显示诊断 + 手动安装指引
+    showDiagnostics();
+    showToast('查看页面底部检测结果，按指引操作');
   }
 }
 
