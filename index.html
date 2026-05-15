@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>漫画整理</title>
+<meta name="theme-color" content="#f6f4f1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="漫画整理">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>📚</text></svg>">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23f6f4f1'/><text x='50' y='0.8em' text-anchor='middle' font-size='64'>📚</text></svg>">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #f6f4f1;
+  --card-bg: #fff;
+  --text: #3b3530;
+  --text-sub: #9b948c;
+  --accent: #7d9d8c;
+  --accent-hover: #5c7d6c;
+  --ongoing: #d4956a;
+  --completed: #7d9d8c;
+  --border: #eae5df;
+  --row-hover: #faf8f5;
+}
+
+body {
+  font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  /* iPhone 安全区域 */
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+.container {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 32px 20px 80px;
+}
+
+/* 头部 */
+.header {
+  text-align: center;
+  padding: 40px 0 8px;
+}
+.header h1 {
+  font-size: 26px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+.header .count {
+  font-size: 13px;
+  color: var(--text-sub);
+  margin-top: 4px;
+}
+
+/* Tab */
+.tabs {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin: 24px 0 28px;
+}
+.tab {
+  padding: 9px 26px;
+  border: 1.5px solid var(--border);
+  border-radius: 24px;
+  background: var(--card-bg);
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--text-sub);
+  transition: all 0.25s;
+  user-select: none;
+}
+.tab:hover { border-color: var(--accent); color: var(--accent); }
+.tab.active { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 500; }
+.tab.ongoing-tab.active { background: var(--ongoing); border-color: var(--ongoing); }
+
+/* 操作栏 */
+.actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.actions-left { display: flex; align-items: center; gap: 8px; }
+.actions-right { display: flex; align-items: center; gap: 8px; }
+
+.search-box { position: relative; }
+.search-box input {
+  padding: 9px 14px 9px 34px;
+  border: 1.5px solid var(--border);
+  border-radius: 22px;
+  background: var(--card-bg);
+  font-size: 14px;
+  width: 200px;
+  outline: none;
+  transition: border-color 0.25s;
+  font-family: inherit;
+}
+.search-box input:focus { border-color: var(--accent); }
+.search-box .search-icon {
+  position: absolute; left: 11px; top: 50%; transform: translateY(-50%);
+  color: var(--text-sub); font-size: 14px; pointer-events: none;
+}
+
+.btn {
+  padding: 9px 18px;
+  border: none;
+  border-radius: 22px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.25s;
+  font-family: inherit;
+  white-space: nowrap;
+}
+.btn-add { background: var(--accent); color: #fff; }
+.btn-add:hover { background: var(--accent-hover); }
+.btn-add.ongoing-btn { background: var(--ongoing); }
+.btn-add.ongoing-btn:hover { background: #c08055; }
+
+.btn-sm {
+  padding: 7px 14px;
+  font-size: 12px;
+  border-radius: 18px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  color: var(--text-sub);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+.btn-sm:hover { border-color: var(--accent); color: var(--accent); }
+
+/* === 列表 === */
+.manga-list {
+  background: var(--card-bg);
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+.list-header {
+  display: flex;
+  padding: 12px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-sub);
+  letter-spacing: 0.05em;
+  background: #faf8f5;
+  border-bottom: 1px solid var(--border);
+}
+.list-header .col { flex-shrink: 0; }
+
+.list-row {
+  display: flex;
+  align-items: center;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.2s;
+}
+.list-row:last-child { border-bottom: none; }
+.list-row:hover { background: var(--row-hover); }
+
+.col-name    { flex: 2; min-width: 0; }
+.col-group   { flex: 1.5; min-width: 0; }
+.col-update  { flex: 1.5; min-width: 0; }
+.col-genre   { flex: 0 0 70px; }
+.col-actions { flex: 0 0 88px; }
+
+.col-name .manga-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.col-name .status-dot {
+  display: inline-block;
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  margin-right: 6px;
+  vertical-align: middle;
+  position: relative; top: -1px;
+}
+.dot-ongoing  { background: var(--ongoing); }
+.dot-completed { background: var(--accent); }
+
+.col-group .group-text {
+  font-size: 13px;
+  color: var(--text);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.col-update .update-text {
+  font-size: 13px;
+  color: var(--text-sub);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.col-genre .genre-tag {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.genre-bg  { background: #e8e0f0; color: #7b5ea7; }
+.genre-bl  { background: #d5e8f0; color: #4f7d9e; }
+.genre-other { background: rgba(139,128,143,0.1); color: var(--text-sub); }
+
+.col-actions .row-actions {
+  display: flex;
+  gap: 2px;
+  justify-content: flex-end;
+}
+.row-actions button {
+  width: 28px; height: 28px;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  color: #c5bdb5;
+  font-size: 14px;
+  transition: all 0.2s;
+  display: flex; align-items: center; justify-content: center;
+}
+.row-actions button:hover { color: var(--text); background: rgba(0,0,0,0.04); }
+.row-actions .btn-move:hover   { color: var(--accent); }
+.row-actions .btn-delete:hover { color: #d47b7b; background: rgba(212,123,123,0.08); }
+
+.empty-state {
+  text-align: center;
+  padding: 56px 20px;
+  color: var(--text-sub);
+}
+.empty-state .empty-icon { font-size: 40px; margin-bottom: 10px; opacity: 0.5; }
+.empty-state p { font-size: 14px; }
+
+/* === 弹窗 === */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(50,40,45,0.3);
+  backdrop-filter: blur(4px);
+  z-index: 100;
+  display: flex; align-items: center; justify-content: center;
+  animation: fadeIn 0.2s ease;
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.modal {
+  background: var(--card-bg);
+  border-radius: 16px;
+  padding: 32px 28px 28px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 8px 40px rgba(50,40,45,0.15);
+  animation: slideUp 0.25s ease;
+}
+@keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+.modal h3 { font-size: 19px; font-weight: 600; margin-bottom: 20px; }
+.modal .form-group { margin-bottom: 16px; }
+.modal label {
+  display: block; font-size: 13px; font-weight: 500;
+  color: var(--text-sub); margin-bottom: 6px;
+}
+.modal input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  font-size: 14px;
+  color: var(--text);
+  background: var(--bg);
+  outline: none;
+  transition: border-color 0.25s;
+  font-family: inherit;
+}
+.modal input:focus { border-color: var(--accent); background: #fff; }
+
+.genre-options { display: flex; gap: 8px; }
+.genre-opt {
+  flex: 1;
+  padding: 9px 0;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+  cursor: pointer;
+  text-align: center;
+  font-size: 14px;
+  color: var(--text-sub);
+  transition: all 0.2s;
+  user-select: none;
+}
+.genre-opt:hover { border-color: var(--accent); color: var(--accent); }
+.genre-opt.selected { background: var(--accent); border-color: var(--accent); color: #fff; }
+#customGenreInput { margin-top: 10px; display: none; }
+
+.modal .form-actions {
+  display: flex; gap: 10px; margin-top: 24px; justify-content: flex-end;
+}
+.btn-cancel { background: var(--bg); color: var(--text-sub); }
+.btn-cancel:hover { background: var(--border); }
+.btn-save { background: var(--accent); color: #fff; }
+.btn-save:hover { background: var(--accent-hover); }
+
+/* toast */
+.toast {
+  position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%);
+  background: var(--text); color: #fff;
+  padding: 10px 22px; border-radius: 22px;
+  font-size: 13px; z-index: 200;
+  animation: toastIn 0.3s ease, toastOut 0.3s ease 1.7s forwards;
+  pointer-events: none;
+}
+@keyframes toastIn { from { opacity: 0; transform: translateX(-50%) translateY(10px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+@keyframes toastOut { from { opacity: 1; } to { opacity: 0; } }
+
+/* 底部工具栏 */
+.footer-bar {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 24px;
+  padding-bottom: 16px;
+}
+.footer-bar button {
+  padding: 8px 16px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--card-bg);
+  color: var(--text-sub);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+.footer-bar button:hover { border-color: var(--accent); color: var(--accent); }
+
+/* 安装提示条 */
+.install-banner {
+  display: none;
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: var(--text);
+  color: #fff;
+  padding: 14px 20px calc(14px + env(safe-area-inset-bottom, 0));
+  z-index: 300;
+  text-align: center;
+  font-size: 14px;
+  animation: slideUpBanner 0.4s ease;
+}
+@keyframes slideUpBanner { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.install-banner button {
+  margin-left: 12px;
+  padding: 6px 16px;
+  border: none;
+  border-radius: 16px;
+  background: #fff;
+  color: var(--text);
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+/* 响应式 */
+@media (max-width: 600px) {
+  .header { padding-top: 20px; }
+  .header h1 { font-size: 21px; }
+  .actions { flex-direction: column; align-items: stretch; }
+  .actions-left { flex-wrap: wrap; }
+  .actions-right { justify-content: flex-end; }
+  .search-box input { width: 100%; }
+
+  .list-header { display: none; }
+  .list-row { flex-wrap: wrap; padding: 12px 14px; gap: 4px 0; }
+  .col-name    { flex: 0 0 100%; order: 1; }
+  .col-group   { flex: 1 0 auto; order: 2; }
+  .col-update  { flex: 1 0 auto; order: 3; }
+  .col-genre   { flex: 0 0 auto; order: 4; }
+  .col-actions { flex: 0 0 100%; order: 5; display: flex; justify-content: flex-end; }
+  .col-group .group-text,
+  .col-update .update-text { font-size: 12px; }
+  .col-name .manga-title { font-size: 14px; }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1>漫画整理</h1>
+    <div class="count" id="countText">共 0 部漫画</div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab ongoing-tab active" onclick="switchTab('ongoing')">连载中</button>
+    <button class="tab completed-tab" onclick="switchTab('completed')">完结</button>
+  </div>
+
+  <div class="actions">
+    <div class="actions-left">
+      <div class="search-box">
+        <span class="search-icon">&#x1F50D;</span>
+        <input type="text" id="searchInput" placeholder="搜索..." oninput="renderManga()">
+      </div>
+    </div>
+    <div class="actions-right">
+      <button class="btn-sm" onclick="exportData()" title="导出数据">📤 导出</button>
+      <button class="btn-sm" onclick="document.getElementById('importFile').click()" title="导入数据">📥 导入</button>
+      <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
+      <button class="btn btn-add ongoing-btn" id="addBtn" onclick="openModal()">+ 添加漫画</button>
+    </div>
+  </div>
+
+  <div class="manga-list" id="mangaList">
+    <div class="list-header">
+      <div class="col col-name">漫画名</div>
+      <div class="col col-group">汉化组</div>
+      <div class="col col-update">更新状态</div>
+      <div class="col col-genre">类型</div>
+      <div class="col col-actions"></div>
+    </div>
+    <div id="mangaRows"></div>
+  </div>
+
+  <div class="footer-bar">
+    <button onclick="exportData()">📤 导出数据</button>
+    <button onclick="document.getElementById('importFile').click()">📥 导入数据</button>
+  </div>
+</div>
+
+<!-- 安装提示条 -->
+<div class="install-banner" id="installBanner">
+  添加到主屏幕，像 App 一样使用
+  <button onclick="installPWA()">安装</button>
+</div>
+
+<!-- 弹窗 -->
+<div class="modal-overlay" id="modalOverlay" style="display:none" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <h3 id="modalTitle">添加漫画</h3>
+    <div class="form-group">
+      <label>漫画名</label>
+      <input type="text" id="inputName" placeholder="输入漫画名称">
+    </div>
+    <div class="form-group">
+      <label>汉化组</label>
+      <input type="text" id="inputGroup" placeholder="输入汉化组名称">
+    </div>
+    <div class="form-group">
+      <label>更新状态</label>
+      <input type="text" id="inputUpdate" placeholder="例如：第12话 / 已完结 / 休刊中">
+    </div>
+    <div class="form-group">
+      <label>漫画类型</label>
+      <div class="genre-options">
+        <div class="genre-opt selected" data-genre="BG" onclick="selectGenre('BG', this)">BG</div>
+        <div class="genre-opt" data-genre="BL" onclick="selectGenre('BL', this)">BL</div>
+        <div class="genre-opt" data-genre="__other__" onclick="selectGenre('__other__', this)">其他</div>
+      </div>
+      <input type="text" id="customGenreInput" placeholder="输入自定义类型">
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-cancel" onclick="closeModal()">取消</button>
+      <button class="btn btn-save" onclick="saveManga()">保存</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = 'manga_manager_data';
+const CACHE_NAME = 'manga-manager-v2';
+
+let currentTab = 'ongoing';
+let editingId = null;
+let selectedGenre = 'BG';
+let mangaData = [];
+let deferredPrompt = null;
+
+// === 数据 ===
+function loadData() {
+  try { mangaData = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch(e) { mangaData = []; }
+}
+function saveData() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(mangaData));
+}
+
+// === 导入导出 ===
+function exportData() {
+  const blob = new Blob([JSON.stringify(mangaData, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'manga-backup-' + new Date().toISOString().slice(0,10) + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('数据已导出');
+}
+
+function importData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!Array.isArray(data)) throw new Error('格式错误');
+      const count = data.length;
+      // 合并：用 id 去重，新的覆盖旧的
+      const map = new Map(mangaData.map(m => [m.id, m]));
+      data.forEach(m => { if (m.id && m.name) map.set(m.id, m); });
+      mangaData = Array.from(map.values());
+      saveData();
+      renderManga();
+      showToast(`已导入 ${count} 条记录`);
+    } catch(err) {
+      showToast('导入失败，请检查文件格式');
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+// === Tab ===
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  if (tab === 'ongoing') {
+    document.querySelector('.ongoing-tab').classList.add('active');
+    document.getElementById('addBtn').className = 'btn btn-add ongoing-btn';
+  } else {
+    document.querySelector('.completed-tab').classList.add('active');
+    document.getElementById('addBtn').className = 'btn btn-add';
+  }
+  renderManga();
+}
+
+// === 类型选择 ===
+function selectGenre(val, el) {
+  selectedGenre = val;
+  document.querySelectorAll('.genre-opt').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  const customInput = document.getElementById('customGenreInput');
+  if (val === '__other__') {
+    customInput.style.display = 'block';
+    customInput.focus();
+  } else {
+    customInput.style.display = 'none';
+    customInput.value = '';
+  }
+}
+
+function getGenreValue() {
+  if (selectedGenre === '__other__') {
+    return document.getElementById('customGenreInput').value.trim() || '其他';
+  }
+  return selectedGenre;
+}
+
+// === 弹窗 ===
+function openModal(id) {
+  editingId = id || null;
+  document.getElementById('modalTitle').textContent = id ? '编辑漫画' : '添加漫画';
+
+  if (id) {
+    const m = mangaData.find(x => x.id === id);
+    if (m) {
+      document.getElementById('inputName').value = m.name || '';
+      document.getElementById('inputGroup').value = m.group || '';
+      document.getElementById('inputUpdate').value = m.update || '';
+
+      const genre = m.genre || 'BG';
+      if (genre === 'BG' || genre === 'BL') {
+        selectGenre(genre, document.querySelector(`.genre-opt[data-genre="${genre}"]`));
+      } else {
+        selectGenre('__other__', document.querySelector('.genre-opt[data-genre="__other__"]'));
+        document.getElementById('customGenreInput').value = genre;
+      }
+    }
+  } else {
+    document.getElementById('inputName').value = '';
+    document.getElementById('inputGroup').value = '';
+    document.getElementById('inputUpdate').value = '';
+    selectGenre('BG', document.querySelector('.genre-opt[data-genre="BG"]'));
+  }
+  document.getElementById('modalOverlay').style.display = 'flex';
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').style.display = 'none';
+  editingId = null;
+}
+function closeModalOutside(e) {
+  if (e.target === document.getElementById('modalOverlay')) closeModal();
+}
+
+function saveManga() {
+  const name = document.getElementById('inputName').value.trim();
+  const group = document.getElementById('inputGroup').value.trim();
+  const update = document.getElementById('inputUpdate').value.trim();
+  const genre = getGenreValue();
+
+  if (!name) { showToast('请输入漫画名'); return; }
+
+  if (editingId) {
+    const m = mangaData.find(x => x.id === editingId);
+    if (m) { m.name = name; m.group = group; m.update = update; m.genre = genre; }
+  } else {
+    mangaData.push({
+      id: Date.now(),
+      name, group, update, genre,
+      status: currentTab === 'ongoing' ? 'ongoing' : 'completed'
+    });
+  }
+  saveData();
+  closeModal();
+  renderManga();
+  showToast(editingId ? '已更新' : '已添加');
+}
+
+function deleteManga(id) {
+  if (!confirm('确定删除这部漫画吗？')) return;
+  mangaData = mangaData.filter(x => x.id !== id);
+  saveData();
+  renderManga();
+  showToast('已删除');
+}
+
+function toggleStatus(id) {
+  const m = mangaData.find(x => x.id === id);
+  if (!m) return;
+  m.status = m.status === 'ongoing' ? 'completed' : 'ongoing';
+  saveData();
+  renderManga();
+  showToast(m.status === 'ongoing' ? '已移至连载中' : '已移至完结');
+}
+
+function showToast(msg) {
+  const existing = document.querySelector('.toast');
+  if (existing) existing.remove();
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2100);
+}
+
+// === 渲染列表 ===
+function renderManga() {
+  const rowsEl = document.getElementById('mangaRows');
+  const search = document.getElementById('searchInput').value.toLowerCase().trim();
+
+  let list = mangaData.filter(m => m.status === currentTab);
+  if (search) {
+    list = list.filter(m =>
+      m.name.toLowerCase().includes(search) ||
+      m.group.toLowerCase().includes(search) ||
+      (m.genre || '').toLowerCase().includes(search) ||
+      (m.update || '').toLowerCase().includes(search)
+    );
+  }
+
+  const total = mangaData.length;
+  const ongoingCount = mangaData.filter(m => m.status === 'ongoing').length;
+  const completedCount = mangaData.filter(m => m.status === 'completed').length;
+  document.getElementById('countText').textContent =
+    `共 ${total} 部漫画 · 连载 ${ongoingCount} · 完结 ${completedCount}`;
+
+  if (list.length === 0) {
+    document.querySelector('.list-header').style.display = 'none';
+    rowsEl.innerHTML = `<div class="empty-state">
+      <div class="empty-icon">📚</div>
+      <p>${search ? '没有找到匹配的漫画' : (currentTab === 'ongoing' ? '还没有连载中的漫画' : '还没有完结的漫画')}</p>
+    </div>`;
+    return;
+  }
+
+  document.querySelector('.list-header').style.display = 'flex';
+  rowsEl.innerHTML = list.map(m => {
+    const genreClass = m.genre === 'BG' ? 'genre-bg' : m.genre === 'BL' ? 'genre-bl' : 'genre-other';
+    return `
+    <div class="list-row">
+      <div class="col col-name">
+        <span class="manga-title">
+          <span class="status-dot ${m.status === 'ongoing' ? 'dot-ongoing' : 'dot-completed'}"></span>${escHtml(m.name)}
+        </span>
+      </div>
+      <div class="col col-group">
+        <span class="group-text">${m.group ? escHtml(m.group) : '<span style="color:#ccc">-</span>'}</span>
+      </div>
+      <div class="col col-update">
+        <span class="update-text">${m.update ? escHtml(m.update) : '<span style="color:#ccc">-</span>'}</span>
+      </div>
+      <div class="col col-genre">
+        <span class="genre-tag ${genreClass}">${escHtml(m.genre || '-')}</span>
+      </div>
+      <div class="col col-actions">
+        <div class="row-actions">
+          <button class="btn-move" title="${m.status === 'ongoing' ? '移至完结' : '移至连载'}" onclick="toggleStatus(${m.id})">${m.status === 'ongoing' ? '✓' : '↩'}</button>
+          <button title="编辑" onclick="openModal(${m.id})">✎</button>
+          <button class="btn-delete" title="删除" onclick="deleteManga(${m.id})">✕</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function escHtml(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
+  if ((e.ctrlKey || e.metaKey) && e.key === 'k') { e.preventDefault(); document.getElementById('searchInput').focus(); }
+});
+
+// === PWA 安装 ===
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById('installBanner').style.display = 'block';
+});
+
+function installPWA() {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(() => {
+      deferredPrompt = null;
+      document.getElementById('installBanner').style.display = 'none';
+    });
+  }
+}
+
+// === Service Worker（离线缓存） ===
+if ('serviceWorker' in navigator) {
+  const swCode = `
+const CACHE = '${CACHE_NAME}';
+const URLS = [self.location.href];
+
+self.addEventListener('install', e => {
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(URLS).catch(() => {})));
+  self.skipWaiting();
+});
+
+self.addEventListener('activate', e => {
+  e.waitUntil(caches.keys().then(keys =>
+    Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
+  ));
+  self.clients.claim();
+});
+
+self.addEventListener('fetch', e => {
+  if (e.request.method !== 'GET') return;
+  e.respondWith(
+    caches.match(e.request).then(cached =>
+      cached || fetch(e.request).then(resp => {
+        if (resp.ok) {
+          const clone = resp.clone();
+          caches.open(CACHE).then(c => c.put(e.request, clone));
+        }
+        return resp;
+      })
+    )
+  );
+});
+`;
+  const swBlob = new Blob([swCode], { type: 'application/javascript' });
+  const swUrl = URL.createObjectURL(swBlob);
+  navigator.serviceWorker.register(swUrl).catch(() => {});
+}
+
+// === 内联 Web App Manifest ===
+const manifest = {
+  name: '漫画整理',
+  short_name: '漫画整理',
+  description: '个人漫画收藏管理工具',
+  start_url: location.href,
+  display: 'standalone',
+  orientation: 'portrait',
+  background_color: '#f6f4f1',
+  theme_color: '#f6f4f1',
+  icons: [{
+    src: 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192"><rect width="192" height="192" rx="36" fill="#f6f4f1"/><text x="96" y="0.75em" text-anchor="middle" font-size="120">📚</text></svg>'),
+    sizes: '192x192',
+    type: 'image/svg+xml'
+  }, {
+    src: 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="96" fill="#f6f4f1"/><text x="256" y="0.75em" text-anchor="middle" font-size="320">📚</text></svg>'),
+    sizes: '512x512',
+    type: 'image/svg+xml'
+  }]
+};
+const manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+const manifestUrl = URL.createObjectURL(manifestBlob);
+const link = document.createElement('link');
+link.rel = 'manifest';
+link.href = manifestUrl;
+document.head.appendChild(link);
+
+loadData();
+renderManga();
+</script>
+</body>
+</html>
