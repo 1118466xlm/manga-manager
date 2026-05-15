@@ -764,6 +764,20 @@ document.addEventListener('keydown', e => {
   if ((e.ctrlKey || e.metaKey) && e.key === 'k') { e.preventDefault(); document.getElementById('searchInput').focus(); }
 });
 
+// === Service Worker 注册（尽早注册） ===
+let swReady = false;
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/manga-manager/sw.js')
+    .then(reg => {
+      return navigator.serviceWorker.ready;
+    })
+    .then(() => {
+      swReady = true;
+    })
+    .catch(() => {});
+}
+
 // === PWA 安装 ===
 const installHeader = document.getElementById('btnInstallHeader');
 let deferredPrompt = null;
@@ -784,7 +798,6 @@ async function runDiagnostics() {
       const resp = await fetch(manifestLink.href);
       const json = await resp.json();
       results.manifestName = !!json.name;
-      results.manifestStartUrl = !!json.start_url;
       results.manifestDisplay = json.display === 'standalone' || json.display === 'fullscreen';
       results.manifestIcons = !!(json.icons && json.icons.length >= 2);
     }
@@ -801,17 +814,18 @@ async function runDiagnostics() {
       if (regs.length > 0) {
         results.swScope = regs[0].scope;
         results.swActive = !!regs[0].active;
+        results.swState = regs[0].active ? regs[0].active.state : (regs[0].installing ? regs[0].installing.state : 'unknown');
+        results.swControlling = !!navigator.serviceWorker.controller;
+        results.swControllerState = navigator.serviceWorker.controller ? navigator.serviceWorker.controller.state : 'none';
       }
     } catch(e) {
       results.swError = e.message;
     }
   }
 
-  // 4. Standalone check
-  results.isStandalone = window.matchMedia('(display-mode: standalone)').matches;
-
-  // 5. beforeinstallprompt
+  // 4. beforeinstallprompt
   results.bipFired = !!deferredPrompt;
+  results.bipPlatforms = deferredPrompt ? (deferredPrompt.platforms || []) : [];
 
   checkResults = results;
   return results;
@@ -831,28 +845,38 @@ function showDiagnostics() {
     let html = '';
     html += '<div class="check-item">' + pass(r.https) + ' HTTPS</div>';
     html += '<div class="check-item">' + pass(r.manifestName) + ' Manifest 配置</div>';
-    html += '<div class="check-item">' + pass(r.manifestIcons) + ' 图标 (192/512px)</div>';
-    html += '<div class="check-item">' + pass(r.swRegistered) + ' Service Worker</div>';
+    html += '<div class="check-item">' + pass(r.manifestIcons) + ' 图标</div>';
+    html += '<div class="check-item">' + pass(r.swRegistered) + ' SW 注册 (' + (r.swState||'?') + ')</div>';
+    if (r.swRegistered) {
+      html += '<div class="check-item">' + pass(r.swControlling) + ' SW 控制页面</div>';
+    }
     html += '<div class="check-item">' + pass(r.bipFired) + ' Chrome 安装就绪</div>';
 
-    if (allPass && !r.bipFired) {
+    if (allPass && !r.bipFired && r.swControlling) {
       html += '<div style="margin-top:12px;padding:10px;background:#fff;border-radius:8px;border:1px solid #e0d8c0;font-size:13px;color:#7b6e50;">';
-      html += '<strong>所有技术检查都通过了 ✓</strong><br><br>';
-      html += 'Chrome 需要你多使用一会儿页面才会允许安装（约30秒以上的交互）。<br><br>';
-      html += '<strong>请操作：</strong>添加几部漫画、切换标签、搜索一下，然后等待底部出现安装提示，或再次点击 📲 按钮。';
+      html += '<strong>技术检查全部通过 ✓</strong><br><br>';
+      html += 'Chrome 需要一定时间的页面交互才会触发安装（通常30秒~2分钟）。<br><br>';
+      html += '<strong>请继续浏览：</strong>添加漫画、切换标签、搜索，安装提示会在底部自动出现。';
       html += '</div>';
 
-      // 启动自动检测
       if (!retryTimer) {
-        retryTimer = setInterval(async () => {
+        retryTimer = setInterval(() => {
           if (deferredPrompt) {
             clearInterval(retryTimer);
             retryTimer = null;
             document.getElementById('installBanner').style.display = 'block';
-            showToast('安装就绪！点击底部横幅安装');
+            showToast('安装就绪！点击底部安装');
           }
         }, 3000);
       }
+    }
+
+    if (allPass && !r.swControlling) {
+      html += '<div style="margin-top:12px;padding:10px;background:#ffe;border-radius:8px;border:1px solid #e0c0c0;font-size:13px;color:#a04040;">';
+      html += '<strong>SW 未控制页面 ⚠</strong><br><br>';
+      html += '需要刷新一次页面让 Service Worker 接管。<br><br>';
+      html += '<button onclick="location.reload()" style="padding:6px 16px;background:#d47b7b;color:#fff;border:none;border-radius:14px;font-size:13px;cursor:pointer;">刷新页面</button>';
+      html += '</div>';
     }
 
     if (r.manifestError) {
@@ -883,7 +907,6 @@ window.addEventListener('beforeinstallprompt', e => {
   deferredPrompt = e;
   document.getElementById('installBanner').style.display = 'block';
   checkResults.bipFired = true;
-  // 更新诊断面板
   const panel = document.getElementById('pwaDebug');
   if (panel.style.display === 'block') showDiagnostics();
   if (retryTimer) { clearInterval(retryTimer); retryTimer = null; }
@@ -907,15 +930,8 @@ function installPWA() {
       }
     });
   } else {
-    // 显示诊断 + 手动安装指引
     showDiagnostics();
-    showToast('查看页面底部检测结果，按指引操作');
   }
-}
-
-// === Service Worker（离线缓存） ===
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/manga-manager/sw.js').catch(() => {});
 }
 
 // Manifest 通过静态文件引用 (manifest.json)
