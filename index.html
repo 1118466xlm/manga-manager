@@ -194,6 +194,15 @@ body {
 }
 .list-row:last-child { border-bottom: none; }
 .list-row:hover { background: var(--row-hover); }
+.list-row.read { opacity: 0.65; }
+
+.read-badge {
+  display: inline-block;
+  color: #5ea87a;
+  font-size: 12px;
+  margin-left: 4px;
+  font-weight: 700;
+}
 
 .col-name    { flex: 2; min-width: 0; }
 .col-group   { flex: 1.5; min-width: 0; }
@@ -259,6 +268,9 @@ body {
 .row-actions button:hover { color: var(--text); background: rgba(0,0,0,0.04); }
 .row-actions .btn-move:hover   { color: var(--accent); }
 .row-actions .btn-delete:hover { color: #d47b7b; background: rgba(212,123,123,0.08); }
+.row-actions .btn-read { color: #c5bdb5; }
+.row-actions .btn-read:hover { color: #5ea87a; background: rgba(94,168,122,0.08); }
+.row-actions .btn-read.done { color: #5ea87a; }
 
 .empty-state {
   text-align: center;
@@ -692,9 +704,18 @@ function toggleStatus(id) {
   const m = mangaData.find(x => x.id === id);
   if (!m) return;
   m.status = m.status === 'ongoing' ? 'completed' : 'ongoing';
+  if (m.status === 'ongoing') m.read = false;
   saveData();
   renderManga();
   showToast(m.status === 'ongoing' ? '已移至连载中' : '已移至完结');
+}
+
+function toggleRead(id) {
+  const m = mangaData.find(x => x.id === id);
+  if (!m) return;
+  m.read = !m.read;
+  saveData();
+  renderManga();
 }
 
 function showToast(msg) {
@@ -750,12 +771,18 @@ function renderManga() {
 
   function renderRow(m) {
     const genreClass = m.genre === 'BG' ? 'genre-bg' : m.genre === 'BL' ? 'genre-bl' : 'genre-other';
-    return '<div class="list-row">'
-      + '<div class="col col-name"><span class="manga-title"><span class="status-dot ' + (m.status === 'ongoing' ? 'dot-ongoing' : 'dot-completed') + '"></span>' + escHtml(m.name) + '</span></div>'
+    const readBadge = m.read ? '<span class="read-badge">✓ 已看</span>' : '';
+    const readCls = m.read ? ' read' : '';
+    const readBtn = m.status === 'completed'
+      ? '<button class="btn-read' + (m.read ? ' done' : '') + '" title="' + (m.read ? '标为未看' : '标为已看') + '" onclick="toggleRead(' + m.id + ')">👁</button>'
+      : '';
+    return '<div class="list-row' + readCls + '">'
+      + '<div class="col col-name"><span class="manga-title"><span class="status-dot ' + (m.status === 'ongoing' ? 'dot-ongoing' : 'dot-completed') + '"></span>' + escHtml(m.name) + readBadge + '</span></div>'
       + '<div class="col col-group"><span class="group-text">' + (m.group ? escHtml(m.group) : '<span style="color:#ccc">-</span>') + '</span></div>'
       + '<div class="col col-update"><span class="update-text">' + (m.update ? escHtml(m.update) : '<span style="color:#ccc">-</span>') + '</span></div>'
       + '<div class="col col-genre"><span class="genre-tag ' + genreClass + '">' + escHtml(m.genre || '-') + '</span></div>'
       + '<div class="col col-actions"><div class="row-actions">'
+      + readBtn
       + '<button class="btn-move" title="' + (m.status === 'ongoing' ? '移至完结' : '移至连载') + '" onclick="toggleStatus(' + m.id + ')">' + (m.status === 'ongoing' ? '✓' : '↩') + '</button>'
       + '<button title="编辑" onclick="openModal(' + m.id + ')">✎</button>'
       + '<button class="btn-delete" title="删除" onclick="deleteManga(' + m.id + ')">✕</button>'
