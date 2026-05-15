@@ -818,33 +818,54 @@ async function runDiagnostics() {
 }
 
 // 显示诊断
+let retryTimer = null;
+
 function showDiagnostics() {
   const panel = document.getElementById('pwaDebug');
   const content = document.getElementById('debugContent');
 
   runDiagnostics().then(r => {
     const pass = (v) => v ? '<span class="check-pass">✓</span>' : '<span class="check-fail">✗</span>';
-    content.innerHTML =
-      '<div class="check-item">' + pass(r.https) + ' HTTPS: ' + (r.https ? '是' : '否') + '</div>' +
-      '<div class="check-item">' + pass(r.manifestLink) + ' Manifest 链接: ' + (r.manifestLink ? '存在' : '缺失') + '</div>' +
-      '<div class="check-item">' + pass(r.manifestName) + ' Manifest name: ' + (r.manifestName ? '有' : '无') + '</div>' +
-      '<div class="check-item">' + pass(r.manifestDisplay) + ' Manifest display: ' + (r.manifestDisplay ? '正确' : '错误') + '</div>' +
-      '<div class="check-item">' + pass(r.manifestIcons) + ' Manifest 图标(≥2): ' + (r.manifestIcons ? '有' : '不足') + '</div>' +
-      '<div class="check-item">' + pass(r.swRegistered) + ' SW 注册: ' + (r.swRegistered ? '已注册 (' + (r.swScope||'') + ')' : '未注册') + '</div>' +
-      '<div class="check-item">' + pass(r.swActive) + ' SW 激活: ' + (r.swActive ? '是' : '否') + '</div>' +
-      '<div class="check-item">' + pass(r.bipFired) + ' beforeinstallprompt: ' + (r.bipFired ? '已触发' : '未触发') + '</div>' +
-      '<div class="check-item">' + pass(!r.isStandalone) + ' 非独立窗口: ' + (!r.isStandalone ? '是' : '已安装') + '</div>';
+    const allPass = r.https && r.manifestName && r.manifestDisplay && r.manifestIcons && r.swRegistered && r.swActive;
+
+    let html = '';
+    html += '<div class="check-item">' + pass(r.https) + ' HTTPS</div>';
+    html += '<div class="check-item">' + pass(r.manifestName) + ' Manifest 配置</div>';
+    html += '<div class="check-item">' + pass(r.manifestIcons) + ' 图标 (192/512px)</div>';
+    html += '<div class="check-item">' + pass(r.swRegistered) + ' Service Worker</div>';
+    html += '<div class="check-item">' + pass(r.bipFired) + ' Chrome 安装就绪</div>';
+
+    if (allPass && !r.bipFired) {
+      html += '<div style="margin-top:12px;padding:10px;background:#fff;border-radius:8px;border:1px solid #e0d8c0;font-size:13px;color:#7b6e50;">';
+      html += '<strong>所有技术检查都通过了 ✓</strong><br><br>';
+      html += 'Chrome 需要你多使用一会儿页面才会允许安装（约30秒以上的交互）。<br><br>';
+      html += '<strong>请操作：</strong>添加几部漫画、切换标签、搜索一下，然后等待底部出现安装提示，或再次点击 📲 按钮。';
+      html += '</div>';
+
+      // 启动自动检测
+      if (!retryTimer) {
+        retryTimer = setInterval(async () => {
+          if (deferredPrompt) {
+            clearInterval(retryTimer);
+            retryTimer = null;
+            document.getElementById('installBanner').style.display = 'block';
+            showToast('安装就绪！点击底部横幅安装');
+          }
+        }, 3000);
+      }
+    }
 
     if (r.manifestError) {
-      content.innerHTML += '<div class="check-item"><span class="check-fail">✗</span> Manifest 错误: ' + r.manifestError + '</div>';
+      html += '<div class="check-item"><span class="check-fail">✗</span> Manifest: ' + r.manifestError + '</div>';
     }
     if (r.swError) {
-      content.innerHTML += '<div class="check-item"><span class="check-fail">✗</span> SW 错误: ' + r.swError + '</div>';
+      html += '<div class="check-item"><span class="check-fail">✗</span> SW: ' + r.swError + '</div>';
     }
 
+    content.innerHTML = html;
     panel.style.display = 'block';
   }).catch(e => {
-    content.innerHTML = '<div class="check-item"><span class="check-fail">✗</span> 诊断异常: ' + e.message + '</div>';
+    content.innerHTML = '<div class="check-item"><span class="check-fail">✗</span> 异常: ' + e.message + '</div>';
     panel.style.display = 'block';
   });
 }
@@ -862,6 +883,10 @@ window.addEventListener('beforeinstallprompt', e => {
   deferredPrompt = e;
   document.getElementById('installBanner').style.display = 'block';
   checkResults.bipFired = true;
+  // 更新诊断面板
+  const panel = document.getElementById('pwaDebug');
+  if (panel.style.display === 'block') showDiagnostics();
+  if (retryTimer) { clearInterval(retryTimer); retryTimer = null; }
 });
 
 window.addEventListener('appinstalled', () => {
