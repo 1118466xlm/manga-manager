@@ -58,6 +58,25 @@ body {
   color: var(--text-sub);
   margin-top: 4px;
 }
+.btn-install-header {
+  width: 36px; height: 36px;
+  border: 1.5px solid var(--border);
+  border-radius: 50%;
+  background: var(--card-bg);
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+  vertical-align: middle;
+  margin-left: 6px;
+  position: relative;
+  top: -2px;
+  transition: all 0.2s;
+  padding: 0;
+}
+.btn-install-header:hover {
+  border-color: var(--accent);
+  background: var(--accent);
+}
 
 /* Tab */
 .tabs {
@@ -396,7 +415,7 @@ body {
 
 <div class="container">
   <div class="header">
-    <h1>漫画整理</h1>
+    <h1>漫画整理 <button class="btn-install-header" id="btnInstallHeader" onclick="installPWA()" style="display:none" title="安装到桌面">📲</button></h1>
     <div class="count" id="countText">共 0 部漫画</div>
   </div>
 
@@ -725,19 +744,40 @@ document.addEventListener('keydown', e => {
 });
 
 // === PWA 安装 ===
+const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+const installHeader = document.getElementById('btnInstallHeader');
+
+// 如果不是独立窗口模式，显示安装按钮
+if (!isStandalone) {
+  installHeader.style.display = 'inline-block';
+}
+
 window.addEventListener('beforeinstallprompt', e => {
   e.preventDefault();
   deferredPrompt = e;
   document.getElementById('installBanner').style.display = 'block';
 });
 
+window.addEventListener('appinstalled', () => {
+  deferredPrompt = null;
+  document.getElementById('installBanner').style.display = 'none';
+  installHeader.style.display = 'none';
+  showToast('已安装到桌面');
+});
+
 function installPWA() {
   if (deferredPrompt) {
     deferredPrompt.prompt();
-    deferredPrompt.userChoice.then(() => {
-      deferredPrompt = null;
-      document.getElementById('installBanner').style.display = 'none';
+    deferredPrompt.userChoice.then(result => {
+      if (result.outcome === 'accepted') {
+        deferredPrompt = null;
+        document.getElementById('installBanner').style.display = 'none';
+        installHeader.style.display = 'none';
+      }
     });
+  } else {
+    // 兜底：提示用户通过浏览器菜单安装
+    showToast('请通过浏览器菜单选择"安装应用"或"添加到主屏幕"');
   }
 }
 
