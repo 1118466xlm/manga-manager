@@ -566,6 +566,23 @@ function importData(event) {
   event.target.value = '';
 }
 
+async function fetchImport() {
+  try {
+    const resp = await fetch('/manga-manager/manga-import.json');
+    if (!resp.ok) throw new Error('文件不存在');
+    const data = await resp.json();
+    if (!Array.isArray(data)) throw new Error('格式错误');
+    const map = new Map(mangaData.map(m => [m.id, m]));
+    data.forEach(m => { if (m.id && m.name) map.set(m.id, m); });
+    mangaData = Array.from(map.values());
+    saveData();
+    renderManga();
+    showToast('已导入 ' + data.length + ' 部漫画');
+  } catch(e) {
+    showToast('导入失败，请稍后重试');
+  }
+}
+
 // === Tab ===
 function switchTab(tab) {
   currentTab = tab;
@@ -722,10 +739,12 @@ function renderManga() {
     `共 ${total} 部漫画 · 连载 ${ongoingCount} · 完结 ${completedCount}`;
 
   if (list.length === 0) {
-    rowsEl.innerHTML = `<div class="empty-state">
-      <div class="empty-icon">📚</div>
-      <p>${search ? '没有找到匹配的漫画' : (currentTab === 'ongoing' ? '还没有连载中的漫画' : '还没有完结的漫画')}</p>
-    </div>`;
+    const hasData = mangaData.length > 0;
+    rowsEl.innerHTML = '<div class="empty-state">'
+      + '<div class="empty-icon">📚</div>'
+      + '<p>' + (search ? '没有找到匹配的漫画' : (currentTab === 'ongoing' ? '还没有连载中的漫画' : '还没有完结的漫画')) + '</p>'
+      + (!hasData && !search ? '<button class="btn btn-add" onclick="fetchImport()" style="margin-top:16px">📥 一键导入 60 部漫画</button>' : '')
+      + '</div>';
     return;
   }
 
