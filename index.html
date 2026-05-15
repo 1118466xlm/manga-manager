@@ -166,6 +166,25 @@ body {
   border: 1px solid var(--border);
   overflow: hidden;
 }
+.group-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  background: #faf8f5;
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-sub);
+  letter-spacing: 0.04em;
+}
+.group-header .group-count {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--text-sub);
+  opacity: 0.7;
+}
+
 .list-row {
   display: flex;
   align-items: center;
@@ -686,6 +705,16 @@ function renderManga() {
     );
   }
 
+  // 按汉化组排序，同组条目聚在一起
+  list.sort((a, b) => {
+    const ga = (a.group || '').trim();
+    const gb = (b.group || '').trim();
+    if (ga && !gb) return -1;
+    if (!ga && gb) return 1;
+    if (ga !== gb) return ga.localeCompare(gb, 'zh');
+    return a.id - b.id;
+  });
+
   const total = mangaData.length;
   const ongoingCount = mangaData.filter(m => m.status === 'ongoing').length;
   const completedCount = mangaData.filter(m => m.status === 'completed').length;
@@ -700,33 +729,42 @@ function renderManga() {
     return;
   }
 
-  rowsEl.innerHTML = list.map(m => {
+  function renderRow(m) {
     const genreClass = m.genre === 'BG' ? 'genre-bg' : m.genre === 'BL' ? 'genre-bl' : 'genre-other';
-    return `
-    <div class="list-row">
-      <div class="col col-name">
-        <span class="manga-title">
-          <span class="status-dot ${m.status === 'ongoing' ? 'dot-ongoing' : 'dot-completed'}"></span>${escHtml(m.name)}
-        </span>
-      </div>
-      <div class="col col-group">
-        <span class="group-text">${m.group ? escHtml(m.group) : '<span style="color:#ccc">-</span>'}</span>
-      </div>
-      <div class="col col-update">
-        <span class="update-text">${m.update ? escHtml(m.update) : '<span style="color:#ccc">-</span>'}</span>
-      </div>
-      <div class="col col-genre">
-        <span class="genre-tag ${genreClass}">${escHtml(m.genre || '-')}</span>
-      </div>
-      <div class="col col-actions">
-        <div class="row-actions">
-          <button class="btn-move" title="${m.status === 'ongoing' ? '移至完结' : '移至连载'}" onclick="toggleStatus(${m.id})">${m.status === 'ongoing' ? '✓' : '↩'}</button>
-          <button title="编辑" onclick="openModal(${m.id})">✎</button>
-          <button class="btn-delete" title="删除" onclick="deleteManga(${m.id})">✕</button>
-        </div>
-      </div>
-    </div>`;
-  }).join('');
+    return '<div class="list-row">'
+      + '<div class="col col-name"><span class="manga-title"><span class="status-dot ' + (m.status === 'ongoing' ? 'dot-ongoing' : 'dot-completed') + '"></span>' + escHtml(m.name) + '</span></div>'
+      + '<div class="col col-group"><span class="group-text">' + (m.group ? escHtml(m.group) : '<span style="color:#ccc">-</span>') + '</span></div>'
+      + '<div class="col col-update"><span class="update-text">' + (m.update ? escHtml(m.update) : '<span style="color:#ccc">-</span>') + '</span></div>'
+      + '<div class="col col-genre"><span class="genre-tag ' + genreClass + '">' + escHtml(m.genre || '-') + '</span></div>'
+      + '<div class="col col-actions"><div class="row-actions">'
+      + '<button class="btn-move" title="' + (m.status === 'ongoing' ? '移至完结' : '移至连载') + '" onclick="toggleStatus(' + m.id + ')">' + (m.status === 'ongoing' ? '✓' : '↩') + '</button>'
+      + '<button title="编辑" onclick="openModal(' + m.id + ')">✎</button>'
+      + '<button class="btn-delete" title="删除" onclick="deleteManga(' + m.id + ')">✕</button>'
+      + '</div></div></div>';
+  }
+
+  // 非搜索状态按汉化组分组
+  if (!search) {
+    let html = '';
+    let i = 0;
+    while (i < list.length) {
+      const g = list[i].group ? list[i].group.trim() : '';
+      // 统计连续同组的条目数
+      let count = 0;
+      for (let j = i; j < list.length; j++) {
+        const gj = list[j].group ? list[j].group.trim() : '';
+        if (gj === g) count++; else break;
+      }
+      if (g && count >= 2) {
+        html += '<div class="group-header"><span class="group-name">' + escHtml(g) + '</span><span class="group-count">' + count + '部</span></div>';
+      }
+      for (let k = 0; k < count; k++) html += renderRow(list[i + k]);
+      i += count;
+    }
+    rowsEl.innerHTML = html;
+  } else {
+    rowsEl.innerHTML = list.map(m => renderRow(m)).join('');
+  }
 }
 
 function escHtml(s) {
