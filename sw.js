@@ -1,4 +1,4 @@
-const CACHE = 'manga-manager-v4';
+const CACHE = 'manga-manager-v5';
 const URLS = [
   '/manga-manager/',
   '/manga-manager/index.html',
@@ -13,7 +13,9 @@ self.addEventListener('install', e => {
 self.addEventListener('activate', e => {
   e.waitUntil(caches.keys().then(keys =>
     Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
-  ));
+  ).then(() => self.clients.matchAll().then(clients => {
+    clients.forEach(c => c.postMessage({ type: 'SW_UPDATED' }));
+  })));
   self.clients.claim();
 });
 
