@@ -751,7 +751,8 @@ function renderManga() {
     const gb = (b.group || '').trim();
     if (ga && !gb) return -1;
     if (!ga && gb) return 1;
-    if (ga !== gb) return ga.localeCompare(gb, 'zh');
+    if (ga < gb) return -1;
+    if (ga > gb) return 1;
     return a.id - b.id;
   });
 
