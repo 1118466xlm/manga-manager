@@ -481,7 +481,7 @@ body {
     <button onclick="document.getElementById('importFile').click()">📥 导入数据</button>
     <button onclick="resetData()" style="color:#d47b7b">🔄 重置数据</button>
   </div>
-  <div style="text-align:center;padding:0 0 12px;font-size:10px;color:#ccc;">v250516a · <a href="#" onclick="showDataDebug();return false;" style="color:#ccc;">调试</a></div>
+  <div style="text-align:center;padding:0 0 12px;font-size:10px;color:#ccc;">v250516b · <a href="#" onclick="showDataDebug();return false;" style="color:#ccc;">调试</a></div>
 
   <!-- 数据诊断面板 -->
   <div class="pwa-debug" id="dataDebug" style="display:none">
@@ -737,20 +737,50 @@ function toggleRead(id) {
 function showDataDebug() {
   const panel = document.getElementById('dataDebug');
   const content = document.getElementById('dataDebugContent');
-  // 按实际存储的组名分组显示
+  let out = '共 ' + mangaData.length + ' 部漫画\n';
+
+  // 1. 原始数据（按存储的组名分组）
   const groups = new Map();
   mangaData.forEach(m => {
     const g = (m.group || '(无组名)').trim();
     if (!groups.has(g)) groups.set(g, []);
     groups.get(g).push(m.name);
   });
-  let out = '共 ' + mangaData.length + ' 部漫画\n\n';
+  out += '=== 原始数据分组 ===\n';
   Array.from(groups.keys()).sort().forEach(g => {
     const names = groups.get(g);
-    out += '【' + g + '】(' + names.length + '部)\n';
-    names.forEach(n => { out += '  - ' + n + '\n'; });
+    out += '【' + g + '】(' + names.length + ')\n';
+    names.forEach(n => { out += '  ' + n + '\n'; });
     out += '\n';
   });
+
+  // 2. renderManga渲染分组（模拟当前tab）
+  out += '=== renderManga(' + currentTab + ') 渲染分组 ===\n';
+  const list = mangaData.filter(m => m.status === currentTab);
+  const rg = new Map();
+  const ng = [];
+  list.forEach(m => {
+    const g = (m.group || '').trim();
+    if (g) {
+      if (!rg.has(g)) rg.set(g, []);
+      rg.get(g).push(m);
+    } else {
+      ng.push(m);
+    }
+  });
+  const sorted = Array.from(rg.keys()).sort((a, b) => a < b ? -1 : a > b ? 1 : 0);
+  sorted.forEach(g => {
+    const entries = rg.get(g);
+    const hdr = entries.length >= 2 ? '[HEADER]' : '         ';
+    out += hdr + ' ' + g + ' (' + entries.length + '部):\n';
+    entries.forEach(m => { out += '  - ' + m.name + ' [group=' + (m.group||'') + ']\n'; });
+    out += '\n';
+  });
+  if (ng.length) {
+    out += '--- 无组名 ---\n';
+    ng.forEach(m => { out += '  - ' + m.name + '\n'; });
+  }
+
   content.textContent = out;
   panel.style.display = 'block';
 }
