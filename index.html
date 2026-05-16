@@ -477,7 +477,7 @@ body {
     <button onclick="document.getElementById('importFile').click()">📥 导入数据</button>
     <button onclick="resetData()" style="color:#d47b7b">🔄 重置数据</button>
   </div>
-  <div style="text-align:center;padding:0 0 12px;font-size:10px;color:#ccc;">v250517f</div>
+  <div style="text-align:center;padding:0 0 12px;font-size:10px;color:#ccc;">v250517g</div>
 
   <!-- 数据诊断面板 -->
   <div class="pwa-debug" id="dataDebug" style="display:none">
@@ -884,7 +884,11 @@ function renderManga() {
       }
     });
     // 组名排序
-    const sorted = Array.from(groups.keys()).sort((a, b) => a < b ? -1 : a > b ? 1 : 0);
+    const sorted = Array.from(groups.keys()).sort((a, b) => {
+      if (a === '其他') return 1;
+      if (b === '其他') return -1;
+      return a < b ? -1 : a > b ? 1 : 0;
+    });
     let html = '';
     sorted.forEach(g => {
       const entries = groups.get(g);
