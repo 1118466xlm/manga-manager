@@ -475,9 +475,8 @@ body {
   <div class="footer-bar">
     <button onclick="exportData()">📤 导出数据</button>
     <button onclick="document.getElementById('importFile').click()">📥 导入数据</button>
-    <button onclick="resetData()" style="color:#d47b7b">🔄 重置数据</button>
   </div>
-  <div style="text-align:center;padding:0 0 12px;font-size:10px;color:#ccc;">v250517g</div>
+  <div style="text-align:center;padding:0 0 12px;font-size:10px;color:#ccc;">v250517h</div>
 
   <!-- 数据诊断面板 -->
   <div class="pwa-debug" id="dataDebug" style="display:none">
@@ -583,46 +582,6 @@ function importData(event) {
   };
   reader.readAsText(file);
   event.target.value = '';
-}
-
-async function fetchImport() {
-  try {
-    const resp = await fetch('/manga-manager/manga-import.json');
-    if (!resp.ok) throw new Error('文件不存在');
-    const data = await resp.json();
-    if (!Array.isArray(data)) throw new Error('格式错误');
-    // 替换模式：清空旧数据，用导入数据完全替换
-    mangaData = data.filter(m => m.id && m.name);
-    saveData();
-    renderManga();
-    showToast('已导入 ' + mangaData.length + ' 部漫画');
-  } catch(e) {
-    showToast('导入失败，请稍后重试');
-  }
-}
-
-async function fetchImportCompleted() {
-  try {
-    const resp = await fetch('/manga-manager/manga-import-completed.json');
-    if (!resp.ok) throw new Error('文件不存在');
-    const data = await resp.json();
-    if (!Array.isArray(data)) throw new Error('格式错误');
-    // 合并模式：保留连载数据，只追加完结数据
-    const map = new Map(mangaData.map(m => [m.id, m]));
-    data.forEach(m => { if (m.id && m.name) map.set(m.id, m); });
-    mangaData = Array.from(map.values());
-    saveData();
-    renderManga();
-    showToast('已导入 ' + data.length + ' 部完结漫画');
-  } catch(e) {
-    showToast('导入失败，请稍后重试');
-  }
-}
-
-async function resetData() {
-  if (!confirm('确定要用原始数据重置吗？\n\n这会清空所有漫画并重新导入60部初始数据。')) return;
-  mangaData = [];
-  await fetchImport();
 }
 
 // === Tab ===
@@ -831,21 +790,9 @@ function renderManga() {
     `共 ${total} 部漫画 · 连载 ${ongoingCount} · 完结 ${completedCount}`;
 
   if (list.length === 0) {
-    const hasData = mangaData.length > 0;
-    const hasOngoing = mangaData.some(m => m.status === 'ongoing');
-    const hasCompleted = mangaData.some(m => m.status === 'completed');
-    let importBtn = '';
-    if (!search) {
-      if (!hasData) {
-        importBtn = '<button class="btn btn-add" onclick="fetchImport()" style="margin-top:16px">📥 一键导入 60 部漫画</button>';
-      } else if (currentTab === 'completed' && !hasCompleted) {
-        importBtn = '<button class="btn btn-add" onclick="fetchImportCompleted()" style="margin-top:16px">📥 一键导入 27 部完结漫画</button>';
-      }
-    }
     rowsEl.innerHTML = '<div class="empty-state">'
       + '<div class="empty-icon">📚</div>'
       + '<p>' + (search ? '没有找到匹配的漫画' : (currentTab === 'ongoing' ? '还没有连载中的漫画' : '还没有完结的漫画')) + '</p>'
-      + importBtn
       + '</div>';
     return;
   }
