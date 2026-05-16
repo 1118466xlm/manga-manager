@@ -187,15 +187,14 @@ body {
   font-weight: 700;
 }
 
-.col-name    { flex: 2; min-width: 0; }
-.col-group   { flex: 0.9; min-width: 0; }
-.col-update  { flex: 1.1; min-width: 0; }
-.col-genre   { flex: 0 0 38px; }
-.col-actions { flex: 0 0 48px; }
+.col-name    { flex: 0 0 36%; min-width: 0; }
+.col-group   { flex: 0 0 14%; min-width: 0; }
+.col-update  { flex: 1 1 0%; min-width: 0; padding: 0 6px; }
+.col-genre   { flex: 0 0 32px; }
+.col-actions { flex: 0 0 56px; }
 
 .list-row.in-group .col-group { display: none; }
-.list-row.in-group .col-name { flex: 2.4; }
-.list-row.in-group .col-update { flex: 1.8; }
+.list-row.in-group .col-name { flex: 0 0 38%; }
 
 .col { overflow: hidden; }
 
@@ -224,7 +223,11 @@ body {
 .col-update .update-text {
   font-size: 10px;
   color: var(--text-sub);
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  line-height: 1.3;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 }
 .col-genre .genre-tag {
   display: inline-block;
@@ -424,13 +427,14 @@ body {
   .list-row { flex-wrap: wrap; padding: 6px 8px; gap: 2px 0; }
   .col-name    { flex: 0 0 100%; order: 1; }
   .col-group   { flex: 1 0 auto; order: 2; }
-  .col-update  { flex: 1 0 auto; order: 3; }
+  .col-update  { flex: 1 0 auto; order: 3; padding: 0; }
   .col-genre   { flex: 0 0 auto; order: 4; }
   .col-actions { flex: 0 0 100%; order: 5; display: flex; justify-content: flex-end; }
   .col-group .group-text,
-  .col-update .update-text { font-size: 10px; }
+  .col-update .update-text { font-size: 10px; -webkit-line-clamp: unset; display: block; }
   .col-name .manga-title { font-size: 12px; }
   .list-row.in-group .col-group { display: none; }
+  .list-row.in-group .col-name { flex: 0 0 100%; }
 }
 </style>
 </head>
@@ -469,7 +473,7 @@ body {
     <button onclick="document.getElementById('importFile').click()">📥 导入数据</button>
     <button onclick="resetData()" style="color:#d47b7b">🔄 重置数据</button>
   </div>
-  <div style="text-align:center;padding:0 0 12px;font-size:10px;color:#ccc;">v250516f</div>
+  <div style="text-align:center;padding:0 0 12px;font-size:10px;color:#ccc;">v250517a</div>
 
   <!-- 数据诊断面板 -->
   <div class="pwa-debug" id="dataDebug" style="display:none">
