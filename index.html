@@ -745,17 +745,6 @@ function renderManga() {
     );
   }
 
-  // 按汉化组排序，同组条目聚在一起
-  list.sort((a, b) => {
-    const ga = (a.group || '').trim();
-    const gb = (b.group || '').trim();
-    if (ga && !gb) return -1;
-    if (!ga && gb) return 1;
-    if (ga < gb) return -1;
-    if (ga > gb) return 1;
-    return a.id - b.id;
-  });
-
   const total = mangaData.length;
   const ongoingCount = mangaData.filter(m => m.status === 'ongoing').length;
   const completedCount = mangaData.filter(m => m.status === 'completed').length;
@@ -794,22 +783,28 @@ function renderManga() {
 
   // 非搜索状态按汉化组分组
   if (!search) {
+    const groups = new Map();
+    const noGroup = [];
+    list.forEach(m => {
+      const g = (m.group || '').trim();
+      if (g) {
+        if (!groups.has(g)) groups.set(g, []);
+        groups.get(g).push(m);
+      } else {
+        noGroup.push(m);
+      }
+    });
+    // 组名排序
+    const sorted = Array.from(groups.keys()).sort((a, b) => a < b ? -1 : a > b ? 1 : 0);
     let html = '';
-    let i = 0;
-    while (i < list.length) {
-      const g = list[i].group ? list[i].group.trim() : '';
-      // 统计连续同组的条目数
-      let count = 0;
-      for (let j = i; j < list.length; j++) {
-        const gj = list[j].group ? list[j].group.trim() : '';
-        if (gj === g) count++; else break;
+    sorted.forEach(g => {
+      const entries = groups.get(g);
+      if (entries.length >= 2) {
+        html += '<div class="group-header"><span class="group-name">' + escHtml(g) + '</span><span class="group-count">' + entries.length + '部</span></div>';
       }
-      if (g && count >= 2) {
-        html += '<div class="group-header"><span class="group-name">' + escHtml(g) + '</span><span class="group-count">' + count + '部</span></div>';
-      }
-      for (let k = 0; k < count; k++) html += renderRow(list[i + k]);
-      i += count;
-    }
+      entries.forEach(m => { html += renderRow(m); });
+    });
+    noGroup.forEach(m => { html += renderRow(m); });
     rowsEl.innerHTML = html;
   } else {
     rowsEl.innerHTML = list.map(m => renderRow(m)).join('');
