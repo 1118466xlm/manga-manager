@@ -486,7 +486,7 @@ body {
     <button onclick="exportData()">📤 导出数据</button>
     <button onclick="document.getElementById('importFile').click()">📥 导入数据</button>
   </div>
-  <div style="text-align:center;padding:0 0 12px;font-size:10px;color:#ccc;">v250517k</div>
+  <div style="text-align:center;padding:0 0 12px;font-size:10px;color:#ccc;">v250517l</div>
 
   <!-- 数据诊断面板 -->
   <div class="pwa-debug" id="dataDebug" style="display:none">
@@ -830,15 +830,10 @@ function renderManga() {
   // 非搜索状态按汉化组分组
   if (!search) {
     const groups = new Map();
-    const noGroup = [];
     list.forEach(m => {
-      const g = (m.group || '').trim();
-      if (g) {
-        if (!groups.has(g)) groups.set(g, []);
-        groups.get(g).push(m);
-      } else {
-        noGroup.push(m);
-      }
+      const g = (m.group || '').trim() || '其他';
+      if (!groups.has(g)) groups.set(g, []);
+      groups.get(g).push(m);
     });
     // 组名排序
     const sorted = Array.from(groups.keys()).sort((a, b) => {
@@ -858,7 +853,6 @@ function renderManga() {
       entries.forEach(m => { html += renderRow(m, true); });
       html += '</div></div>';
     });
-    noGroup.forEach(m => { html += renderRow(m, false); });
     rowsEl.innerHTML = html;
   } else {
     rowsEl.innerHTML = list.map(m => renderRow(m, false)).join('');
