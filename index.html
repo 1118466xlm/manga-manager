@@ -58,25 +58,6 @@ body {
   color: var(--text-sub);
   margin-top: 4px;
 }
-.btn-install-header {
-  width: 36px; height: 36px;
-  border: 1.5px solid var(--border);
-  border-radius: 50%;
-  background: var(--card-bg);
-  cursor: pointer;
-  font-size: 18px;
-  line-height: 1;
-  vertical-align: middle;
-  margin-left: 6px;
-  position: relative;
-  top: -2px;
-  transition: all 0.2s;
-  padding: 0;
-}
-.btn-install-header:hover {
-  border-color: var(--accent);
-  background: var(--accent);
-}
 
 /* Tab */
 .tabs {
@@ -211,6 +192,10 @@ body {
 .col-update  { flex: 1.1; min-width: 0; }
 .col-genre   { flex: 0 0 38px; }
 .col-actions { flex: 0 0 48px; }
+
+.list-row.in-group .col-group { display: none; }
+.list-row.in-group .col-name { flex: 2.6; }
+.list-row.in-group .col-update { flex: 1.4; }
 
 .col-name .manga-title {
   font-size: 12px;
@@ -443,6 +428,7 @@ body {
   .col-group .group-text,
   .col-update .update-text { font-size: 10px; }
   .col-name .manga-title { font-size: 12px; }
+  .list-row.in-group .col-group { display: none; }
 }
 </style>
 </head>
@@ -450,7 +436,7 @@ body {
 
 <div class="container">
   <div class="header">
-    <h1>漫画整理 <button class="btn-install-header" id="btnInstallHeader" onclick="installPWA()" style="display:none" title="安装到桌面">📲</button></h1>
+    <h1>漫画整理</h1>
     <div class="count" id="countText">共 0 部漫画</div>
   </div>
 
@@ -481,8 +467,6 @@ body {
     <button onclick="document.getElementById('importFile').click()">📥 导入数据</button>
     <button onclick="resetData()" style="color:#d47b7b">🔄 重置数据</button>
   </div>
-  <div style="text-align:center;padding:0 0 12px;font-size:10px;color:#ccc;">v250516e · <a href="#" onclick="showDataDebug();return false;" style="color:#ccc;">调试</a></div>
-
   <!-- 数据诊断面板 -->
   <div class="pwa-debug" id="dataDebug" style="display:none">
     <div class="debug-title">📋 数据诊断</div>
@@ -826,14 +810,14 @@ function renderManga() {
     return;
   }
 
-  function renderRow(m) {
+  function renderRow(m, inGroup) {
     const genreClass = m.genre === 'BG' ? 'genre-bg' : m.genre === 'BL' ? 'genre-bl' : 'genre-other';
     const readBadge = m.read ? '<span class="read-badge">✓ 已看</span>' : '';
     const readCls = m.read ? ' read' : '';
     const readBtn = m.status === 'completed'
       ? '<button class="btn-read' + (m.read ? ' done' : '') + '" title="' + (m.read ? '标为未看' : '标为已看') + '" onclick="toggleRead(' + m.id + ')">👁</button>'
       : '';
-    return '<div class="list-row' + readCls + '">'
+    return '<div class="list-row' + readCls + (inGroup ? ' in-group' : '') + '">'
       + '<div class="col col-name"><span class="manga-title"><span class="status-dot ' + (m.status === 'ongoing' ? 'dot-ongoing' : 'dot-completed') + '"></span>' + escHtml(m.name) + readBadge + '</span></div>'
       + '<div class="col col-group"><span class="group-text">' + (m.group ? escHtml(m.group) : '<span style="color:#ccc">-</span>') + '</span></div>'
       + '<div class="col col-update"><span class="update-text">' + (m.update ? escHtml(m.update) : '<span style="color:#ccc">-</span>') + '</span></div>'
@@ -865,12 +849,12 @@ function renderManga() {
     sorted.forEach(g => {
       const entries = groups.get(g);
       html += '<div class="group-header"><span class="group-name">' + escHtml(g) + '</span><span class="group-count">' + entries.length + '部</span></div>';
-      entries.forEach(m => { html += renderRow(m); });
+      entries.forEach(m => { html += renderRow(m, true); });
     });
-    noGroup.forEach(m => { html += renderRow(m); });
+    noGroup.forEach(m => { html += renderRow(m, false); });
     rowsEl.innerHTML = html;
   } else {
-    rowsEl.innerHTML = list.map(m => renderRow(m)).join('');
+    rowsEl.innerHTML = list.map(m => renderRow(m, false)).join('');
   }
 }
 
@@ -956,7 +940,6 @@ function getEngageStatus() {
 }
 
 // === PWA 安装 ===
-const installHeader = document.getElementById('btnInstallHeader');
 let deferredPrompt = null;
 let checkResults = {};
 
@@ -1088,11 +1071,6 @@ function showDiagnostics() {
 // 初始检测
 runDiagnostics();
 
-// 如果不是独立窗口模式，显示安装按钮
-if (!window.matchMedia('(display-mode: standalone)').matches) {
-  installHeader.style.display = 'inline-block';
-}
-
 window.addEventListener('beforeinstallprompt', e => {
   e.preventDefault();
   deferredPrompt = e;
@@ -1106,7 +1084,6 @@ window.addEventListener('beforeinstallprompt', e => {
 window.addEventListener('appinstalled', () => {
   deferredPrompt = null;
   document.getElementById('installBanner').style.display = 'none';
-  installHeader.style.display = 'none';
   showToast('已安装到桌面');
 });
 
@@ -1117,7 +1094,6 @@ function installPWA() {
       if (result.outcome === 'accepted') {
         deferredPrompt = null;
         document.getElementById('installBanner').style.display = 'none';
-        installHeader.style.display = 'none';
       }
     });
   } else {
