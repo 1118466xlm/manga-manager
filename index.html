@@ -194,8 +194,10 @@ body {
 .col-actions { flex: 0 0 48px; }
 
 .list-row.in-group .col-group { display: none; }
-.list-row.in-group .col-name { flex: 2.6; }
-.list-row.in-group .col-update { flex: 1.4; }
+.list-row.in-group .col-name { flex: 2.4; }
+.list-row.in-group .col-update { flex: 1.8; }
+
+.col { overflow: hidden; }
 
 .col-name .manga-title {
   font-size: 12px;
@@ -467,6 +469,8 @@ body {
     <button onclick="document.getElementById('importFile').click()">📥 导入数据</button>
     <button onclick="resetData()" style="color:#d47b7b">🔄 重置数据</button>
   </div>
+  <div style="text-align:center;padding:0 0 12px;font-size:10px;color:#ccc;">v250516f</div>
+
   <!-- 数据诊断面板 -->
   <div class="pwa-debug" id="dataDebug" style="display:none">
     <div class="debug-title">📋 数据诊断</div>
