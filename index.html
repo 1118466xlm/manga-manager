@@ -165,8 +165,19 @@ body {
   font-weight: 400;
   color: var(--text-sub);
   opacity: 0.8;
-  margin-left: auto;
 }
+.group-header .btn-edit-group {
+  width: 18px; height: 18px;
+  border: none;
+  background: transparent;
+  border-radius: 3px;
+  cursor: pointer;
+  color: #c5bdb5;
+  font-size: 11px;
+  margin-left: auto;
+  display: flex; align-items: center; justify-content: center;
+}
+.group-header .btn-edit-group:hover { color: var(--text); background: rgba(0,0,0,0.04); }
 
 .list-row {
   display: flex;
@@ -189,10 +200,10 @@ body {
 }
 
 /* 两行布局：行1=漫画名+类型，行2=更新状态+操作 */
-.col-name    { flex: 0 0 calc(100% - 36px); min-width: 0; order: 1; }
-.col-genre   { flex: 0 0 auto; order: 2; }
-.col-update  { flex: 0 0 calc(100% - 60px); min-width: 0; order: 3; }
-.col-actions { flex: 0 0 auto; order: 4; }
+.col-name    { flex: 0 0 70%; min-width: 0; order: 1; }
+.col-genre   { flex: 0 0 30%; order: 2; display: flex; justify-content: flex-end; }
+.col-update  { flex: 0 0 78%; min-width: 0; order: 3; }
+.col-actions { flex: 0 0 22%; order: 4; display: flex; justify-content: flex-end; }
 .col-group   { display: none; }
 
 .col { overflow: hidden; }
@@ -420,10 +431,10 @@ body {
   .search-box input { width: 100%; }
 
   .list-row { padding: 5px 8px; gap: 1px 0; }
-  .col-name    { flex: 0 0 calc(100% - 34px); order: 1; }
-  .col-genre   { order: 2; }
-  .col-update  { flex: 0 0 calc(100% - 56px); order: 3; }
-  .col-actions { order: 4; }
+  .col-name    { flex: 0 0 68%; order: 1; }
+  .col-genre   { flex: 0 0 32%; order: 2; }
+  .col-update  { flex: 0 0 75%; order: 3; }
+  .col-actions { flex: 0 0 25%; order: 4; }
   .col-group   { display: none; }
   .col-group .group-text,
   .col-update .update-text { font-size: 10px; }
@@ -466,7 +477,7 @@ body {
     <button onclick="document.getElementById('importFile').click()">📥 导入数据</button>
     <button onclick="resetData()" style="color:#d47b7b">🔄 重置数据</button>
   </div>
-  <div style="text-align:center;padding:0 0 12px;font-size:10px;color:#ccc;">v250517c</div>
+  <div style="text-align:center;padding:0 0 12px;font-size:10px;color:#ccc;">v250517d</div>
 
   <!-- 数据诊断面板 -->
   <div class="pwa-debug" id="dataDebug" style="display:none">
@@ -849,7 +860,7 @@ function renderManga() {
     let html = '';
     sorted.forEach(g => {
       const entries = groups.get(g);
-      html += '<div class="group-header"><span class="group-name">' + escHtml(g) + '</span><span class="group-count">' + entries.length + '部</span></div>';
+      html += '<div class="group-header"><span class="group-name">' + escHtml(g) + '</span><span class="group-count">' + entries.length + '部</span><button class="btn-edit-group" onclick="renameGroup(\'' + escAttr(g) + '\')" title="重命名汉化组">✎</button></div>';
       entries.forEach(m => { html += renderRow(m, true); });
     });
     noGroup.forEach(m => { html += renderRow(m, false); });
@@ -863,6 +874,21 @@ function escHtml(s) {
   const d = document.createElement('div');
   d.textContent = s;
   return d.innerHTML;
+}
+function escAttr(s) {
+  return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function renameGroup(oldName) {
+  const newName = prompt('重命名汉化组：', oldName);
+  if (!newName || !newName.trim() || newName.trim() === oldName) return;
+  const n = newName.trim();
+  mangaData.forEach(m => {
+    if ((m.group || '').trim() === oldName) m.group = n;
+  });
+  saveData();
+  renderManga();
+  showToast('已重命名为「' + n + '」');
+}
 }
 
 document.addEventListener('keydown', e => {
