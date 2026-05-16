@@ -480,6 +480,7 @@ body {
     <button onclick="exportData()">📤 导出数据</button>
     <button onclick="document.getElementById('importFile').click()">📥 导入数据</button>
   </div>
+  <div style="text-align:center;padding:0 0 12px;font-size:10px;color:#ccc;">v250516</div>
 
   <!-- PWA 诊断面板 -->
   <div class="pwa-debug" id="pwaDebug" style="display:none">
@@ -828,15 +829,36 @@ let swReady = false;
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/manga-manager/sw.js')
     .then(reg => {
+      // 监听新 SW 发现
+      reg.addEventListener('updatefound', () => {
+        const newSW = reg.installing;
+        if (newSW) {
+          newSW.addEventListener('statechange', () => {
+            if (newSW.state === 'activated') location.reload();
+          });
+        }
+      });
+      // 主动检查更新
+      reg.update().catch(() => {});
       return navigator.serviceWorker.ready;
     })
     .then(() => {
       swReady = true;
+      // 再次确保拿到的是最新 SW
+      navigator.serviceWorker.getRegistration().then(r => {
+        if (r) r.update().catch(() => {});
+      });
     })
     .catch(() => {});
   navigator.serviceWorker.addEventListener('message', e => {
     if (e.data && e.data.type === 'SW_UPDATED') location.reload();
   });
+  // 定时检查更新（每30分钟）
+  setInterval(() => {
+    navigator.serviceWorker.getRegistration().then(r => {
+      if (r) r.update().catch(() => {});
+    });
+  }, 1800000);
 }
 
 // === 参与度追踪（Chrome 要求 30s + 两次访问间隔≥5分钟） ===

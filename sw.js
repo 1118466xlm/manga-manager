@@ -1,4 +1,4 @@
-const CACHE = 'manga-manager-v5';
+const CACHE = 'manga-manager-v6';
 const URLS = [
   '/manga-manager/',
   '/manga-manager/index.html',
@@ -21,6 +21,20 @@ self.addEventListener('activate', e => {
 
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
+  // 导航请求（HTML）走网络优先，确保总是最新内容
+  if (e.request.mode === 'navigate') {
+    e.respondWith(
+      fetch(e.request).then(resp => {
+        if (resp.ok) {
+          const clone = resp.clone();
+          caches.open(CACHE).then(c => c.put(e.request, clone));
+        }
+        return resp;
+      }).catch(() => caches.match(e.request))
+    );
+    return;
+  }
+  // 其他资源缓存优先
   e.respondWith(
     caches.match(e.request).then(cached =>
       cached || fetch(e.request).then(resp => {
