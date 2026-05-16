@@ -479,6 +479,7 @@ body {
   <div class="footer-bar">
     <button onclick="exportData()">📤 导出数据</button>
     <button onclick="document.getElementById('importFile').click()">📥 导入数据</button>
+    <button onclick="resetData()" style="color:#d47b7b">🔄 重置数据</button>
   </div>
   <div style="text-align:center;padding:0 0 12px;font-size:10px;color:#ccc;">v250516</div>
 
@@ -587,15 +588,20 @@ async function fetchImport() {
     if (!resp.ok) throw new Error('文件不存在');
     const data = await resp.json();
     if (!Array.isArray(data)) throw new Error('格式错误');
-    const map = new Map(mangaData.map(m => [m.id, m]));
-    data.forEach(m => { if (m.id && m.name) map.set(m.id, m); });
-    mangaData = Array.from(map.values());
+    // 替换模式：清空旧数据，用导入数据完全替换
+    mangaData = data.filter(m => m.id && m.name);
     saveData();
     renderManga();
-    showToast('已导入 ' + data.length + ' 部漫画');
+    showToast('已导入 ' + mangaData.length + ' 部漫画');
   } catch(e) {
     showToast('导入失败，请稍后重试');
   }
+}
+
+async function resetData() {
+  if (!confirm('确定要用原始数据重置吗？\n\n这会清空所有漫画并重新导入60部初始数据。')) return;
+  mangaData = [];
+  await fetchImport();
 }
 
 // === Tab ===
