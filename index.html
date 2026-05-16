@@ -179,6 +179,11 @@ body {
   color: var(--text);
   letter-spacing: 0.04em;
 }
+.group-sep {
+  height: 1px;
+  background: var(--border);
+  margin: 4px 10px;
+}
 .group-header .group-count {
   font-size: 11px;
   font-weight: 400;
@@ -481,7 +486,7 @@ body {
     <button onclick="document.getElementById('importFile').click()">📥 导入数据</button>
     <button onclick="resetData()" style="color:#d47b7b">🔄 重置数据</button>
   </div>
-  <div style="text-align:center;padding:0 0 12px;font-size:10px;color:#ccc;">v250516b · <a href="#" onclick="showDataDebug();return false;" style="color:#ccc;">调试</a></div>
+  <div style="text-align:center;padding:0 0 12px;font-size:10px;color:#ccc;">v250516c · <a href="#" onclick="showDataDebug();return false;" style="color:#ccc;">调试</a></div>
 
   <!-- 数据诊断面板 -->
   <div class="pwa-debug" id="dataDebug" style="display:none">
@@ -862,13 +867,24 @@ function renderManga() {
     // 组名排序
     const sorted = Array.from(groups.keys()).sort((a, b) => a < b ? -1 : a > b ? 1 : 0);
     let html = '';
+    let prevHadHeader = false;
     sorted.forEach(g => {
       const entries = groups.get(g);
-      if (entries.length >= 2) {
+      const hasHeader = entries.length >= 2;
+      // 如果前一组有表头而当前组没有表头，插入分隔线
+      if (prevHadHeader && !hasHeader) {
+        html += '<div class="group-sep"></div>';
+      }
+      if (hasHeader) {
         html += '<div class="group-header"><span class="group-name">' + escHtml(g) + '</span><span class="group-count">' + entries.length + '部</span></div>';
       }
       entries.forEach(m => { html += renderRow(m); });
+      prevHadHeader = hasHeader;
     });
+    // 如果最后一组有表头且还有无组条目，也加分隔
+    if (prevHadHeader && noGroup.length > 0) {
+      html += '<div class="group-sep"></div>';
+    }
     noGroup.forEach(m => { html += renderRow(m); });
     rowsEl.innerHTML = html;
   } else {
