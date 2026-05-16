@@ -1,4 +1,4 @@
-const CACHE = 'manga-manager-v6';
+const CACHE = 'manga-manager-v7';
 const URLS = [
   '/manga-manager/',
   '/manga-manager/index.html',

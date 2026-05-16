@@ -58,25 +58,6 @@ body {
   color: var(--text-sub);
   margin-top: 4px;
 }
-.btn-install-header {
-  width: 36px; height: 36px;
-  border: 1.5px solid var(--border);
-  border-radius: 50%;
-  background: var(--card-bg);
-  cursor: pointer;
-  font-size: 18px;
-  line-height: 1;
-  vertical-align: middle;
-  margin-left: 6px;
-  position: relative;
-  top: -2px;
-  transition: all 0.2s;
-  padding: 0;
-}
-.btn-install-header:hover {
-  border-color: var(--accent);
-  background: var(--accent);
-}
 
 /* Tab */
 .tabs {
@@ -169,28 +150,50 @@ body {
 .group-header {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 10px;
+  gap: 6px;
+  padding: 6px 8px;
   background: #faf8f5;
   border-bottom: 1px solid var(--border);
   border-left: 3px solid var(--accent);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
   color: var(--text);
   letter-spacing: 0.04em;
 }
 .group-header .group-count {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 400;
   color: var(--text-sub);
   opacity: 0.8;
-  margin-left: auto;
 }
+.group-header .btn-edit-group {
+  width: 18px; height: 18px;
+  border: none;
+  background: transparent;
+  border-radius: 3px;
+  cursor: pointer;
+  color: #c5bdb5;
+  font-size: 11px;
+  margin-left: auto;
+  display: flex; align-items: center; justify-content: center;
+}
+.group-header .btn-edit-group:hover { color: var(--text); background: rgba(0,0,0,0.04); }
+
+.group-block.collapsed .group-rows { display: none; }
+.group-header.collapsible { cursor: pointer; }
+.group-header.collapsible:hover { background: #f0ede8; }
+.group-fold-icon {
+  font-size: 10px;
+  transition: transform 0.2s;
+  display: inline-block;
+}
+.group-block.collapsed .group-fold-icon { transform: rotate(-90deg); }
 
 .list-row {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  padding: 7px 10px;
+  padding: 4px 8px;
   border-bottom: 1px solid var(--border);
   transition: background 0.2s;
 }
@@ -201,28 +204,31 @@ body {
 .read-badge {
   display: inline-block;
   color: #5ea87a;
-  font-size: 12px;
-  margin-left: 4px;
+  font-size: 10px;
+  margin-left: 3px;
   font-weight: 700;
 }
 
-.col-name    { flex: 2.2; min-width: 0; }
-.col-group   { flex: 1; min-width: 0; }
-.col-update  { flex: 1.2; min-width: 0; }
-.col-genre   { flex: 0 0 48px; }
-.col-actions { flex: 0 0 56px; }
+/* 两行布局：行1=漫画名+类型，行2=更新状态+操作 */
+.col-name    { flex: 0 0 70%; min-width: 0; order: 1; }
+.col-genre   { flex: 0 0 30%; order: 2; display: flex; justify-content: flex-end; }
+.col-update  { flex: 0 0 78%; min-width: 0; order: 3; }
+.col-actions { flex: 0 0 22%; order: 4; display: flex; justify-content: flex-end; }
+.col-group   { display: none; }
+
+.col { overflow: hidden; }
 
 .col-name .manga-title {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   color: var(--text);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .col-name .status-dot {
   display: inline-block;
-  width: 7px; height: 7px;
+  width: 6px; height: 6px;
   border-radius: 50%;
-  margin-right: 6px;
+  margin-right: 4px;
   vertical-align: middle;
   position: relative; top: -1px;
 }
@@ -230,20 +236,20 @@ body {
 .dot-completed { background: var(--accent); }
 
 .col-group .group-text {
-  font-size: 11px;
+  font-size: 10px;
   color: var(--text);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .col-update .update-text {
-  font-size: 11px;
+  font-size: 10px;
   color: var(--text-sub);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .col-genre .genre-tag {
   display: inline-block;
-  padding: 2px 10px;
-  border-radius: 10px;
-  font-size: 12px;
+  padding: 1px 5px;
+  border-radius: 8px;
+  font-size: 10px;
   font-weight: 500;
   white-space: nowrap;
 }
@@ -257,13 +263,13 @@ body {
   justify-content: flex-end;
 }
 .row-actions button {
-  width: 22px; height: 22px;
+  width: 18px; height: 18px;
   border: none;
   background: transparent;
-  border-radius: 4px;
+  border-radius: 3px;
   cursor: pointer;
   color: #c5bdb5;
-  font-size: 13px;
+  font-size: 11px;
   transition: all 0.2s;
   display: flex; align-items: center; justify-content: center;
 }
@@ -434,15 +440,15 @@ body {
   .actions-right { justify-content: flex-end; }
   .search-box input { width: 100%; }
 
-  .list-row { flex-wrap: wrap; padding: 8px 10px; gap: 2px 0; }
-  .col-name    { flex: 0 0 100%; order: 1; }
-  .col-group   { flex: 1 0 auto; order: 2; }
-  .col-update  { flex: 1 0 auto; order: 3; }
-  .col-genre   { flex: 0 0 auto; order: 4; }
-  .col-actions { flex: 0 0 100%; order: 5; display: flex; justify-content: flex-end; }
+  .list-row { padding: 5px 8px; gap: 1px 0; }
+  .col-name    { flex: 0 0 68%; order: 1; }
+  .col-genre   { flex: 0 0 32%; order: 2; }
+  .col-update  { flex: 0 0 75%; order: 3; }
+  .col-actions { flex: 0 0 25%; order: 4; }
+  .col-group   { display: none; }
   .col-group .group-text,
-  .col-update .update-text { font-size: 11px; }
-  .col-name .manga-title { font-size: 13px; }
+  .col-update .update-text { font-size: 10px; }
+  .col-name .manga-title { font-size: 12px; }
 }
 </style>
 </head>
@@ -450,7 +456,7 @@ body {
 
 <div class="container">
   <div class="header">
-    <h1>漫画整理 <button class="btn-install-header" id="btnInstallHeader" onclick="installPWA()" style="display:none" title="安装到桌面">📲</button></h1>
+    <h1>漫画整理</h1>
     <div class="count" id="countText">共 0 部漫画</div>
   </div>
 
@@ -479,9 +485,8 @@ body {
   <div class="footer-bar">
     <button onclick="exportData()">📤 导出数据</button>
     <button onclick="document.getElementById('importFile').click()">📥 导入数据</button>
-    <button onclick="resetData()" style="color:#d47b7b">🔄 重置数据</button>
   </div>
-  <div style="text-align:center;padding:0 0 12px;font-size:10px;color:#ccc;">v250516a · <a href="#" onclick="showDataDebug();return false;" style="color:#ccc;">调试</a></div>
+  <div style="text-align:center;padding:0 0 12px;font-size:10px;color:#ccc;">v250517i</div>
 
   <!-- 数据诊断面板 -->
   <div class="pwa-debug" id="dataDebug" style="display:none">
@@ -587,28 +592,6 @@ function importData(event) {
   };
   reader.readAsText(file);
   event.target.value = '';
-}
-
-async function fetchImport() {
-  try {
-    const resp = await fetch('/manga-manager/manga-import.json');
-    if (!resp.ok) throw new Error('文件不存在');
-    const data = await resp.json();
-    if (!Array.isArray(data)) throw new Error('格式错误');
-    // 替换模式：清空旧数据，用导入数据完全替换
-    mangaData = data.filter(m => m.id && m.name);
-    saveData();
-    renderManga();
-    showToast('已导入 ' + mangaData.length + ' 部漫画');
-  } catch(e) {
-    showToast('导入失败，请稍后重试');
-  }
-}
-
-async function resetData() {
-  if (!confirm('确定要用原始数据重置吗？\n\n这会清空所有漫画并重新导入60部初始数据。')) return;
-  mangaData = [];
-  await fetchImport();
 }
 
 // === Tab ===
@@ -737,20 +720,50 @@ function toggleRead(id) {
 function showDataDebug() {
   const panel = document.getElementById('dataDebug');
   const content = document.getElementById('dataDebugContent');
-  // 按实际存储的组名分组显示
+  let out = '共 ' + mangaData.length + ' 部漫画\n';
+
+  // 1. 原始数据（按存储的组名分组）
   const groups = new Map();
   mangaData.forEach(m => {
     const g = (m.group || '(无组名)').trim();
     if (!groups.has(g)) groups.set(g, []);
     groups.get(g).push(m.name);
   });
-  let out = '共 ' + mangaData.length + ' 部漫画\n\n';
+  out += '=== 原始数据分组 ===\n';
   Array.from(groups.keys()).sort().forEach(g => {
     const names = groups.get(g);
-    out += '【' + g + '】(' + names.length + '部)\n';
-    names.forEach(n => { out += '  - ' + n + '\n'; });
+    out += '【' + g + '】(' + names.length + ')\n';
+    names.forEach(n => { out += '  ' + n + '\n'; });
     out += '\n';
   });
+
+  // 2. renderManga渲染分组（模拟当前tab）
+  out += '=== renderManga(' + currentTab + ') 渲染分组 ===\n';
+  const list = mangaData.filter(m => m.status === currentTab);
+  const rg = new Map();
+  const ng = [];
+  list.forEach(m => {
+    const g = (m.group || '').trim();
+    if (g) {
+      if (!rg.has(g)) rg.set(g, []);
+      rg.get(g).push(m);
+    } else {
+      ng.push(m);
+    }
+  });
+  const sorted = Array.from(rg.keys()).sort((a, b) => a < b ? -1 : a > b ? 1 : 0);
+  sorted.forEach(g => {
+    const entries = rg.get(g);
+    const hdr = entries.length >= 2 ? '[HEADER]' : '         ';
+    out += hdr + ' ' + g + ' (' + entries.length + '部):\n';
+    entries.forEach(m => { out += '  - ' + m.name + ' [group=' + (m.group||'') + ']\n'; });
+    out += '\n';
+  });
+  if (ng.length) {
+    out += '--- 无组名 ---\n';
+    ng.forEach(m => { out += '  - ' + m.name + '\n'; });
+  }
+
   content.textContent = out;
   panel.style.display = 'block';
 }
@@ -787,23 +800,21 @@ function renderManga() {
     `共 ${total} 部漫画 · 连载 ${ongoingCount} · 完结 ${completedCount}`;
 
   if (list.length === 0) {
-    const hasData = mangaData.length > 0;
     rowsEl.innerHTML = '<div class="empty-state">'
       + '<div class="empty-icon">📚</div>'
       + '<p>' + (search ? '没有找到匹配的漫画' : (currentTab === 'ongoing' ? '还没有连载中的漫画' : '还没有完结的漫画')) + '</p>'
-      + (!hasData && !search ? '<button class="btn btn-add" onclick="fetchImport()" style="margin-top:16px">📥 一键导入 60 部漫画</button>' : '')
       + '</div>';
     return;
   }
 
-  function renderRow(m) {
+  function renderRow(m, inGroup) {
     const genreClass = m.genre === 'BG' ? 'genre-bg' : m.genre === 'BL' ? 'genre-bl' : 'genre-other';
     const readBadge = m.read ? '<span class="read-badge">✓ 已看</span>' : '';
     const readCls = m.read ? ' read' : '';
     const readBtn = m.status === 'completed'
       ? '<button class="btn-read' + (m.read ? ' done' : '') + '" title="' + (m.read ? '标为未看' : '标为已看') + '" onclick="toggleRead(' + m.id + ')">👁</button>'
       : '';
-    return '<div class="list-row' + readCls + '">'
+    return '<div class="list-row' + readCls + (inGroup ? ' in-group' : '') + '">'
       + '<div class="col col-name"><span class="manga-title"><span class="status-dot ' + (m.status === 'ongoing' ? 'dot-ongoing' : 'dot-completed') + '"></span>' + escHtml(m.name) + readBadge + '</span></div>'
       + '<div class="col col-group"><span class="group-text">' + (m.group ? escHtml(m.group) : '<span style="color:#ccc">-</span>') + '</span></div>'
       + '<div class="col col-update"><span class="update-text">' + (m.update ? escHtml(m.update) : '<span style="color:#ccc">-</span>') + '</span></div>'
@@ -830,19 +841,27 @@ function renderManga() {
       }
     });
     // 组名排序
-    const sorted = Array.from(groups.keys()).sort((a, b) => a < b ? -1 : a > b ? 1 : 0);
+    const sorted = Array.from(groups.keys()).sort((a, b) => {
+      if (a === '其他') return 1;
+      if (b === '其他') return -1;
+      return a < b ? -1 : a > b ? 1 : 0;
+    });
     let html = '';
     sorted.forEach(g => {
       const entries = groups.get(g);
-      if (entries.length >= 2) {
-        html += '<div class="group-header"><span class="group-name">' + escHtml(g) + '</span><span class="group-count">' + entries.length + '部</span></div>';
-      }
-      entries.forEach(m => { html += renderRow(m); });
+      const bigGroup = currentTab === 'completed' && entries.length >= 10;
+      html += '<div class="group-block' + (bigGroup ? ' collapsed' : '') + '">';
+      html += '<div class="group-header' + (bigGroup ? ' collapsible' : '') + '"' + (bigGroup ? ' onclick="toggleGroup(this)"' : '') + '>';
+      html += (bigGroup ? '<span class="group-fold-icon">▼</span>' : '');
+      html += '<span class="group-name">' + escHtml(g) + '</span><span class="group-count">' + entries.length + '部</span><button class="btn-edit-group" onclick="event.stopPropagation();renameGroup(\'' + escAttr(g) + '\')" title="重命名汉化组">✎</button></div>';
+      html += '<div class="group-rows">';
+      entries.forEach(m => { html += renderRow(m, true); });
+      html += '</div></div>';
     });
-    noGroup.forEach(m => { html += renderRow(m); });
+    noGroup.forEach(m => { html += renderRow(m, false); });
     rowsEl.innerHTML = html;
   } else {
-    rowsEl.innerHTML = list.map(m => renderRow(m)).join('');
+    rowsEl.innerHTML = list.map(m => renderRow(m, false)).join('');
   }
 }
 
@@ -850,6 +869,25 @@ function escHtml(s) {
   const d = document.createElement('div');
   d.textContent = s;
   return d.innerHTML;
+}
+function escAttr(s) {
+  return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function renameGroup(oldName) {
+  const newName = prompt('重命名汉化组：', oldName);
+  if (!newName || !newName.trim() || newName.trim() === oldName) return;
+  const n = newName.trim();
+  mangaData.forEach(m => {
+    if ((m.group || '').trim() === oldName) m.group = n;
+  });
+  saveData();
+  renderManga();
+  showToast('已重命名为「' + n + '」');
+}
+
+function toggleGroup(headerEl) {
+  const block = headerEl.parentElement;
+  block.classList.toggle('collapsed');
 }
 
 document.addEventListener('keydown', e => {
@@ -928,7 +966,6 @@ function getEngageStatus() {
 }
 
 // === PWA 安装 ===
-const installHeader = document.getElementById('btnInstallHeader');
 let deferredPrompt = null;
 let checkResults = {};
 
@@ -1060,11 +1097,6 @@ function showDiagnostics() {
 // 初始检测
 runDiagnostics();
 
-// 如果不是独立窗口模式，显示安装按钮
-if (!window.matchMedia('(display-mode: standalone)').matches) {
-  installHeader.style.display = 'inline-block';
-}
-
 window.addEventListener('beforeinstallprompt', e => {
   e.preventDefault();
   deferredPrompt = e;
@@ -1078,7 +1110,6 @@ window.addEventListener('beforeinstallprompt', e => {
 window.addEventListener('appinstalled', () => {
   deferredPrompt = null;
   document.getElementById('installBanner').style.display = 'none';
-  installHeader.style.display = 'none';
   showToast('已安装到桌面');
 });
 
@@ -1089,7 +1120,6 @@ function installPWA() {
       if (result.outcome === 'accepted') {
         deferredPrompt = null;
         document.getElementById('installBanner').style.display = 'none';
-        installHeader.style.display = 'none';
       }
     });
   } else {
