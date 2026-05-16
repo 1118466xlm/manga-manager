@@ -481,7 +481,14 @@ body {
     <button onclick="document.getElementById('importFile').click()">📥 导入数据</button>
     <button onclick="resetData()" style="color:#d47b7b">🔄 重置数据</button>
   </div>
-  <div style="text-align:center;padding:0 0 12px;font-size:10px;color:#ccc;">v250516</div>
+  <div style="text-align:center;padding:0 0 12px;font-size:10px;color:#ccc;">v250516a · <a href="#" onclick="showDataDebug();return false;" style="color:#ccc;">调试</a></div>
+
+  <!-- 数据诊断面板 -->
+  <div class="pwa-debug" id="dataDebug" style="display:none">
+    <div class="debug-title">📋 数据诊断</div>
+    <div id="dataDebugContent" style="font-size:11px;max-height:400px;overflow-y:auto;white-space:pre-wrap;word-break:break-all;"></div>
+    <button class="btn-sm" onclick="document.getElementById('dataDebug').style.display='none'" style="margin-top:8px">关闭</button>
+  </div>
 
   <!-- PWA 诊断面板 -->
   <div class="pwa-debug" id="pwaDebug" style="display:none">
@@ -725,6 +732,27 @@ function toggleRead(id) {
   m.read = !m.read;
   saveData();
   renderManga();
+}
+
+function showDataDebug() {
+  const panel = document.getElementById('dataDebug');
+  const content = document.getElementById('dataDebugContent');
+  // 按实际存储的组名分组显示
+  const groups = new Map();
+  mangaData.forEach(m => {
+    const g = (m.group || '(无组名)').trim();
+    if (!groups.has(g)) groups.set(g, []);
+    groups.get(g).push(m.name);
+  });
+  let out = '共 ' + mangaData.length + ' 部漫画\n\n';
+  Array.from(groups.keys()).sort().forEach(g => {
+    const names = groups.get(g);
+    out += '【' + g + '】(' + names.length + '部)\n';
+    names.forEach(n => { out += '  - ' + n + '\n'; });
+    out += '\n';
+  });
+  content.textContent = out;
+  panel.style.display = 'block';
 }
 
 function showToast(msg) {
